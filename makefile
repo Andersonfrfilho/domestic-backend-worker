@@ -1,166 +1,115 @@
-# ========================
-# Variáveis de ambiente
-# ========================
-ENV_FILE := .env
-ENV_DEV_LOCAL_FILE := .env.dev.local
-ENV_EXAMPLE := .env.example
-COMPOSE_FILE := docker-compose.yml  # Defina o arquivo docker-compose explicitamente
+###############################################################################
+# ZOLVE Worker — Makefile
+###############################################################################
 
-# Se o .env existir, carrega suas variáveis no Makefile
-ifneq ("$(wildcard $(ENV_FILE))","")
-include $(ENV_FILE)
-export
-endif
+.PHONY: help infra infra-down infra-logs infra-ps \
+        dev migrate migrate-show migrate-revert \
+        test test-watch test-cov test-e2e test-all \
+        lint format flows \
+        shell-db shell-mongo shell-rabbit \
+        clean
 
-# ========================
-# Regras
-# ========================
+COMPOSE = docker compose -f docker-compose.yml
+ENV_FILE = .env
 
-# Regra para garantir que o .env exista
-setup-env:
-	@if [ ! -f $(ENV_FILE) ]; then \
-		echo "⚙️  Criando $(ENV_FILE) a partir de $(ENV_EXAMPLE)..."; \
-		cp $(ENV_EXAMPLE) $(ENV_FILE); \
-	else \
-		echo "✅ $(ENV_FILE) já existe — nada a fazer."; \
-	fi
+# Cria .env a partir do exemplo se ainda não existir
+$(ENV_FILE):
+	@echo "Criando $(ENV_FILE) a partir de .env.example..."
+	cp .env.example .env
+	@echo ".env criado. Revise as credenciais antes de continuar."
 
-# ========================
-# Docker commands
-# ========================
+# ─── Help ─────────────────────────────────────────────────────────────────
 
-app: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d api
+help: ## Mostra esta mensagem de ajuda
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-database_postgres: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d database_postgres
+# ─── Infra ────────────────────────────────────────────────────────────────
 
-database_postgres-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down database_postgres
+infra: $(ENV_FILE) ## Sobe postgres, mongo, rabbitmq e mailpit
+	$(COMPOSE) up -d
+	@echo ""
+	@echo "Infra no ar:"
+	@echo "  PostgreSQL  → localhost:5432"
+	@echo "  MongoDB     → localhost:27017"
+	@echo "  RabbitMQ    → localhost:5672  (management: http://localhost:15672)"
+	@echo "  Mailpit     → http://localhost:8025"
 
-database_postgres-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop database_postgres
+infra-down: ## Para e remove os containers (mantém volumes)
+	$(COMPOSE) down
 
-database_mongo: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d database_mongo
+infra-logs: ## Tail de todos os logs da infra
+	$(COMPOSE) logs -f
 
-database_mongo-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down database_mongo
+infra-ps: ## Mostra status dos containers
+	$(COMPOSE) ps
 
-cache_redis: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d cache_redis
+# ─── Desenvolvimento ──────────────────────────────────────────────────────
 
-cache_redis-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down cache_redis
+dev: $(ENV_FILE) ## Inicia o worker em modo watch (requer infra no ar)
+	npm run start:dev
 
-cache_redis-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop cache_redis
+# ─── Migrations ───────────────────────────────────────────────────────────
 
-database_mongo-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop database_mongo
+migrate: ## Aplica as migrations pendentes
+	npm run migration:run
 
-queue_rabbitmq: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d queue_rabbitmq
-queue_rabbitmq-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down queue_rabbitmq
-queue_rabbitmq-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop queue_rabbitmq
+migrate-show: ## Mostra status das migrations
+	npm run migration:show
 
-keycloak: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d keycloak database_keycloak
+migrate-revert: ## Reverte a última migration
+	npm run migration:revert
 
-keycloak-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down keycloak database_keycloak
+migrate-generate: ## Gera nova migration a partir das entidades
+	npm run migration:generate
 
-keycloak-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop keycloak database_keycloak
+# ─── Testes ───────────────────────────────────────────────────────────────
 
-keycloak-logs: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) logs -f keycloak
+test: ## Roda os testes unitários
+	npm run test:unit
 
-keycloak-admin: setup-env
-	@echo "🔗 Keycloak Admin Console: http://localhost:$(KEYCLOAK_PORT)"
-	@echo "👤 Username: $(KEYCLOAK_ADMIN_USER)"
-	@echo "🔑 Password: $(KEYCLOAK_ADMIN_PASSWORD)"
+test-watch: ## Roda testes unitários em modo watch
+	npm run test:unit:watch
 
-sonar-up: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d sonarqube sonar-db
+test-cov: ## Roda testes unitários com cobertura
+	npm run test:unit:cov
 
-sonar-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down sonarqube sonar-db
+test-e2e: ## Roda os testes E2E (requer infra no ar)
+	npm run test:e2e:migration && npm run test:e2e
 
-sonar-scan: setup-env
-	npm run sonar  # Executa o script de análise do SonarQube definido no package.json
+test-all: ## Roda todos os testes (unit + e2e)
+	npm run test:all
 
-stop: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) stop
+# ─── Qualidade de código ──────────────────────────────────────────────────
 
-down: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down api database_postgres database_mongo cache_redis queue_rabbitmq keycloak database_keycloak sonarqube sonar-db
+lint: ## Corrige problemas de lint e ordem de imports
+	npm run lint
 
-clean: clean-all
+format: ## Formata com Prettier e corrige lint
+	npm run format:all
 
-force-remove: setup-env
-	docker rm -f $(shell docker ps -a -q --filter "name=$(SERVICE_NAME)")
+# ─── Flow tests ───────────────────────────────────────────────────────────
 
-clean-images: setup-env
-	docker rmi -f $(shell docker images --filter=reference="$(PROJECT_NAME)*" -q)
+flows: ## Roda todos os flow tests (requer ambiente rodando)
+	npm run flows
 
-clean-safe: setup-env
-	@echo "🧹 Limpando containers e redes do projeto $(PROJECT_NAME), mas preservando volumes (dados persistentes como SonarQube token e configs)..."
-	# Remove apenas containers e redes, sem volumes (-v)
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down --remove-orphans
+flows-worker: ## Roda apenas o flow test do worker
+	npm run flows:worker
 
-	# Remove imagens criadas com prefixo do projeto (opcional, preserva dados)
-	-docker rmi -f $(shell docker images --filter=reference='$(PROJECT_NAME)*' -q)
+# ─── Shells ───────────────────────────────────────────────────────────────
 
-	# Remove redes do projeto (se restarem)
-	-docker network rm $(shell docker network ls --filter name=$(PROJECT_NAME) -q)
+shell-db: ## psql no banco postgres
+	$(COMPOSE) exec database_postgres psql -U $${POSTGRES_USER:-zolve} -d $${POSTGRES_DB:-zolve}
 
-clean-all: setup-env
-	@echo "🧹 Limpando todos os recursos do projeto $(PROJECT_NAME)..."
-	# Force remove datadog-agent if it exists
-	-docker rm -f datadog-agent 2>/dev/null || true
-	# Remove containers, volumes e redes do projeto
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) down -v --remove-orphans
-	# Remove imagens criadas com prefixo do projeto
-	-docker rmi -f $(shell docker images --filter=reference='$(PROJECT_NAME)*' -q)
+shell-mongo: ## mongosh no MongoDB
+	$(COMPOSE) exec database_mongo mongosh
 
-rebuild-app: setup-env
-	@echo "🔄 Rebuildando a imagem do serviço 'api' após instalação de dependências..."
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) build api
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d --force-recreate api
+shell-rabbit: ## rabbitmqctl no RabbitMQ
+	$(COMPOSE) exec queue_rabbitmq rabbitmqctl status
 
-all: setup-env
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d --remove-orphans  # Inicia todos os serviços, incluindo api e sonar
-	@echo "📦 Rodando migrations..."
-	docker exec -it $(PROJECT_NAME)_api npm run migration:run
-	@echo "✅ Projeto iniciado com sucesso!"
+# ─── Limpeza ──────────────────────────────────────────────────────────────
 
-setup-e2e-databases: setup-env
-	@echo "🔧 Criando bancos de dados E2E..."
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d database_postgres database_mongo
-	@echo "⏳ Aguardando PostgreSQL ficar pronto..."
-	sleep 3
-	@echo "⏳ Aguardando MongoDB ficar pronto..."
-	sleep 3
-	@echo "✅ Bancos de dados E2E criados com sucesso!"
-	@echo "   - PostgreSQL: backend_database_test_e2e"
-	@echo "   - MongoDB: backend_test_e2e"
-
-test-e2e-ready: setup-env setup-e2e-databases
-	@echo "🧪 Bancos de dados E2E preparados e prontos para testes!"
-	npm run test:e2e
-
-test-e2e-docker: setup-env
-	@echo "🧪 Iniciando testes E2E com Docker Compose..."
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) --profile e2e up --abort-on-container-exit --exit-code-from e2e-tests
-
-setup: setup-env
-	@echo "🚀 Iniciando setup completo do projeto..."
-	docker-compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE) up -d --remove-orphans
-	@echo "📦 Rodando migrations..."
-	docker exec -it $(PROJECT_NAME)_api npm run migration:run
-	@echo "✅ Setup completo! Projeto pronto para usar."
-
-.PHONY: all rebuild-app setup-env clean-all clean-images force-remove down stop app sonar-up sonar-down sonar-scan clean-safe database_postgres database_mongo queue_rabbitmq keycloak keycloak-down keycloak-stop keycloak-logs keycloak-admin setup setup-e2e-databases test-e2e-ready test-e2e-docker 
+clean: ## Para containers e remove volumes (cuidado: apaga dados!)
+	@echo "Isso apagará todos os dados dos volumes. Continuar? [y/N]"
+	@read ans; [ "$$ans" = "y" ] || exit 1
+	$(COMPOSE) down -v

@@ -1,10 +1,12 @@
 import { Test } from '@nestjs/testing';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { EMAIL_PROVIDER } from '@modules/shared/email/email.token';
 
 import { EmailHandler } from './email.handler';
 
 const mockEmailProvider = { send: jest.fn().mockResolvedValue(undefined) };
+const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 describe('EmailHandler', () => {
   let handler: EmailHandler;
@@ -14,6 +16,7 @@ describe('EmailHandler', () => {
       providers: [
         EmailHandler,
         { provide: EMAIL_PROVIDER, useValue: mockEmailProvider },
+        { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
 

@@ -1,14 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
+
+import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
 import { EmailHandler } from './email.handler';
 import type { EmailEvent } from './dtos/email.event.dto';
 
 @Injectable()
 export class EmailConsumer {
-  private readonly logger = new Logger(EmailConsumer.name);
+  private readonly logContext = `${this.constructor.name}.consume`;
 
-  constructor(private readonly handler: EmailHandler) {}
+  constructor(
+    private readonly handler: EmailHandler,
+    @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
+  ) {}
 
   @RabbitSubscribe({
     exchange: 'zolve.events',
@@ -17,14 +23,14 @@ export class EmailConsumer {
     queueOptions: { durable: true },
   })
   async onEmailEvent(payload: EmailEvent): Promise<void> {
-    this.logger.log(`[notifications.email] Processing — to: ${payload.to}, template: ${payload.template_id}`);
+    this.logger.info({ message: '[notifications.email] Received', context: this.logContext, params: { to: payload.to, template_id: payload.template_id } });
 
     try {
       await this.handler.handle(payload);
-      this.logger.log(`[notifications.email] Done — to: ${payload.to}`);
+      this.logger.info({ message: '[notifications.email] Done', context: this.logContext, params: { to: payload.to } });
     } catch (error) {
-      this.logger.error(`[notifications.email] Failed — to: ${payload.to}`, error);
-      throw error; // triggers NACK → DLX
+      this.logger.error({ message: '[notifications.email] Failed — will NACK', context: this.logContext, params: { to: payload.to, error: error?.message } });
+      throw error;
     }
   }
 }

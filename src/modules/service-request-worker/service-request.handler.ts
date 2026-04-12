@@ -1,6 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
+import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 import { NotificationHandler } from '@modules/notification/notification.handler';
 
 import type { ServiceRequestEvent } from './dtos/service-request.event.dto';
@@ -20,14 +22,16 @@ interface NotifyParams {
 
 @Injectable()
 export class ServiceRequestHandler {
-  private readonly logger = new Logger(ServiceRequestHandler.name);
+  private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(
     private readonly amqp: AmqpConnection,
     private readonly notificationHandler: NotificationHandler,
+    @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
   async handle(event: ServiceRequestEvent): Promise<void> {
+    this.logger.info({ message: 'Processing service request event', context: this.logContext, params: { event_type: event.event_type, request_id: event.request_id } });
     switch (event.event_type) {
       case 'created':
         await this.notifyCreated(event);
@@ -45,8 +49,10 @@ export class ServiceRequestHandler {
         await this.notifyCancelled(event);
         break;
       default:
-        this.logger.warn(`Unknown event_type: ${(event as any).event_type}`);
+        this.logger.warn({ message: 'Unknown event_type — skipping', context: this.logContext, params: { event_type: (event as any).event_type } });
+        return;
     }
+    this.logger.info({ message: 'Service request event processed successfully', context: this.logContext, params: { event_type: event.event_type, request_id: event.request_id } });
   }
 
   private async notifyCreated(event: ServiceRequestEvent): Promise<void> {
@@ -175,7 +181,7 @@ export class ServiceRequestHandler {
       to: params.email,
       template_id: params.templateId,
       variables: params.variables,
-    }).catch((err) => this.logger.error('Failed to publish email event', err));
+    }).catch((err) => this.logger.error({ message: 'Failed to publish email event', context: this.logContext, params: { user_id: params.userId, error: err?.message } }));
 
     // Publica push (se tiver token)
     if (params.fcmToken) {
@@ -185,7 +191,7 @@ export class ServiceRequestHandler {
         title: params.pushTitle,
         body: params.pushBody,
         data: { type: 'service_request', request_id: params.entityId },
-      }).catch((err) => this.logger.error('Failed to publish push event', err));
+      }).catch((err) => this.logger.error({ message: 'Failed to publish push event', context: this.logContext, params: { user_id: params.userId, error: err?.message } }));
     }
   }
 }

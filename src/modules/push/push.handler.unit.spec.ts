@@ -1,10 +1,12 @@
 import { Test } from '@nestjs/testing';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { FIREBASE_PROVIDER } from '@modules/shared/firebase/firebase.token';
 
 import { PushHandler } from './push.handler';
 
 const mockFirebase = { sendPush: jest.fn().mockResolvedValue(undefined) };
+const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 describe('PushHandler', () => {
   let handler: PushHandler;
@@ -14,6 +16,7 @@ describe('PushHandler', () => {
       providers: [
         PushHandler,
         { provide: FIREBASE_PROVIDER, useValue: mockFirebase },
+        { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
 

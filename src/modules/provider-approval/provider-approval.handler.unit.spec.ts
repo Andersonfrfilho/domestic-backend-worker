@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { ProviderVerification } from '@modules/shared/providers/database/entities/provider-verification.entity';
 import { ProviderVerificationLog } from '@modules/shared/providers/database/entities/provider-verification-log.entity';
@@ -18,6 +19,7 @@ const mockVerificationRepo = {
 const mockLogRepo = { create: jest.fn(), save: jest.fn() };
 const mockAmqp = { publish: jest.fn().mockResolvedValue(undefined) };
 const mockNotification = { persist: jest.fn().mockResolvedValue(undefined) };
+const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 const verification = { id: 'verif-1', providerId: 'prov-1', status: 'UNDER_REVIEW' };
 const event = { provider_id: 'prov-1', user_id: 'user-1', email: 'p@test.com', fcm_token: 'fcm-token' };
@@ -33,6 +35,7 @@ describe('ProviderApprovalHandler', () => {
         { provide: getRepositoryToken(ProviderVerificationLog, CONNECTIONS_NAMES.POSTGRES), useValue: mockLogRepo },
         { provide: AmqpConnection, useValue: mockAmqp },
         { provide: NotificationHandler, useValue: mockNotification },
+        { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
 

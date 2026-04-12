@@ -1,5 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { ProviderProfile } from '@modules/shared/providers/database/entities/provider-profile.entity';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
@@ -14,6 +15,7 @@ const mockQb = {
 };
 
 const mockRepo = { createQueryBuilder: jest.fn(() => mockQb) };
+const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 describe('RatingHandler', () => {
   let handler: RatingHandler;
@@ -23,6 +25,7 @@ describe('RatingHandler', () => {
       providers: [
         RatingHandler,
         { provide: getRepositoryToken(ProviderProfile, CONNECTIONS_NAMES.POSTGRES), useValue: mockRepo },
+        { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
 

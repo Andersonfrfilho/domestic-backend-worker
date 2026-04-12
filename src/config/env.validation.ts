@@ -26,11 +26,35 @@ export default Joi.object({
   DATABASE_MONGO_HOST: Joi.string().default('database_mongo'),
   DATABASE_MONGO_PORT: Joi.number().default(27017),
   DATABASE_MONGO_USERNAME: Joi.string().default('mongo'),
-  DATABASE_MONGO_PASSWORD: Joi.string().required(),
+  DATABASE_MONGO_PASSWORD: Joi.string().optional(),
   DATABASE_MONGO_NAME: Joi.string().default('backend_database_mongo'),
   DATABASE_MONGO_TIMEZONE: Joi.string().default('Z'),
   DATABASE_MONGO_LOGGING: Joi.boolean().default(true),
   DATABASE_MONGO_SYNCHRONIZE: Joi.boolean().default(false),
+
+  // ============================================
+  // Database — PostgreSQL E2E (usado quando NODE_ENV=test)
+  // ============================================
+  DATABASE_POSTGRES_TEST_E2E_HOST: Joi.string().optional(),
+  DATABASE_POSTGRES_TEST_E2E_PORT: Joi.number().optional(),
+  DATABASE_POSTGRES_TEST_E2E_NAME: Joi.string().optional(),
+  DATABASE_POSTGRES_TEST_E2E_USER: Joi.string().optional(),
+  DATABASE_POSTGRES_TEST_E2E_PASSWORD: Joi.string().optional(),
+  DATABASE_POSTGRES_TEST_E2E_SYNCHRONIZE: Joi.boolean().optional(),
+  DATABASE_POSTGRES_TEST_E2E_LOGGING: Joi.boolean().optional(),
+  DATABASE_POSTGRES_TEST_E2E_TIMEZONE: Joi.string().optional(),
+
+  // ============================================
+  // Database — MongoDB E2E (usado quando NODE_ENV=test)
+  // ============================================
+  DATABASE_MONGO_TEST_E2E_HOST: Joi.string().optional(),
+  DATABASE_MONGO_TEST_E2E_PORT: Joi.number().optional(),
+  DATABASE_MONGO_TEST_E2E_USERNAME: Joi.string().optional(),
+  DATABASE_MONGO_TEST_E2E_PASSWORD: Joi.string().optional(),
+  DATABASE_MONGO_TEST_E2E_NAME: Joi.string().optional(),
+  DATABASE_MONGO_TEST_E2E_TIMEZONE: Joi.string().optional(),
+  DATABASE_MONGO_TEST_E2E_LOGGING: Joi.boolean().optional(),
+  DATABASE_MONGO_TEST_E2E_SYNCHRONIZE: Joi.boolean().optional(),
 
   // ============================================
   // RabbitMQ
