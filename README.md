@@ -4,6 +4,20 @@
 $ npm install
 ```
 
+## Docker (fluxo padrão)
+
+Use sempre os alvos do `Makefile` para manter o worker alinhado com a stack da API:
+
+- `make all` → sobe todos os serviços da stack
+- `make down` → derruba os containers
+- `make clean` → remove volumes/dados da stack
+
+Fluxo recomendado de parada/limpeza:
+
+```bash
+make down && make clean
+```
+
 ## Compile and run the project
 
 ```bash

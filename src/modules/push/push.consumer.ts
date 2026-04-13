@@ -20,16 +20,28 @@ export class PushConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.push',
     queue: 'worker.notifications',
-    queueOptions: { durable: true },
+    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
   })
   async onPushEvent(payload: PushEvent): Promise<void> {
-    this.logger.info({ message: '[notifications.push] Received', context: this.logContext, params: { user_id: payload.user_id } });
+    this.logger.info({
+      message: '[notifications.push] Received',
+      context: this.logContext,
+      params: { user_id: payload.user_id },
+    });
 
     try {
       await this.handler.handle(payload);
-      this.logger.info({ message: '[notifications.push] Done', context: this.logContext, params: { user_id: payload.user_id } });
+      this.logger.info({
+        message: '[notifications.push] Done',
+        context: this.logContext,
+        params: { user_id: payload.user_id },
+      });
     } catch (error) {
-      this.logger.error({ message: '[notifications.push] Failed — will NACK', context: this.logContext, params: { user_id: payload.user_id, error: error?.message } });
+      this.logger.error({
+        message: '[notifications.push] Failed — will NACK',
+        context: this.logContext,
+        params: { user_id: payload.user_id, error: error?.message },
+      });
       throw error;
     }
   }

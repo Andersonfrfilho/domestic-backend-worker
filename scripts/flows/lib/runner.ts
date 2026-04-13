@@ -28,9 +28,14 @@ export interface Assertion {
 
 export interface FlowStep<Ctx extends object = Record<string, unknown>> {
   name: string | ((ctx: Ctx) => string);
-  request: (ctx: Ctx) => { method: string; path: string; body?: unknown; headers?: Record<string, string> };
+  request: (ctx: Ctx) => {
+    method: string;
+    path: string;
+    body?: unknown;
+    headers?: Record<string, string>;
+  };
   expect?: (res: RequestResponse, ctx: Ctx) => Assertion[];
-  capture?: (res: RequestResponse, ctx: Ctx) => void;
+  capture?: (res: RequestResponse, ctx: Ctx) => void | Promise<void>;
   skip?: (ctx: Ctx) => boolean;
   required?: boolean;
 }
@@ -69,12 +74,18 @@ export async function request(
 
   let json: unknown = null;
   const text = await res.text();
-  try { json = JSON.parse(text); } catch { /* non-JSON response */ }
+  try {
+    json = JSON.parse(text);
+  } catch {
+    /* non-JSON response */
+  }
 
   return { status: res.status, json, text, ms };
 }
 
-export async function runFlow<Ctx extends object>(flow: Flow<Ctx>): Promise<{ passed: number; failed: number }> {
+export async function runFlow<Ctx extends object>(
+  flow: Flow<Ctx>,
+): Promise<{ passed: number; failed: number }> {
   console.log(`\n${BOLD}${CYAN}▶ ${flow.name}${RESET}`);
   console.log('─'.repeat(50));
 
@@ -118,18 +129,26 @@ export async function runFlow<Ctx extends object>(flow: Flow<Ctx>): Promise<{ pa
 
     const assertions = step.expect?.(res, ctx) ?? [];
     for (const { label, ok, detail } of assertions) {
-      if (ok) { console.log(`    ${pass(label)}`); passed++; }
-      else { console.log(`    ${fail(label)}${detail ? `  ${DIM}${detail}${RESET}` : ''}`); failed++; }
+      if (ok) {
+        console.log(`    ${pass(label)}`);
+        passed++;
+      } else {
+        console.log(`    ${fail(label)}${detail ? `  ${DIM}${detail}${RESET}` : ''}`);
+        failed++;
+      }
     }
 
-    const stepFailed = assertions.some(a => !a.ok);
+    const stepFailed = assertions.some((a) => !a.ok);
     if (stepFailed && res.json) {
       console.log(`    ${DIM}response: ${JSON.stringify(res.json)}${RESET}`);
     }
 
     if (step.capture) {
-      try { step.capture(res, ctx); }
-      catch (err) { console.log(`    ${warn(`capture error: ${(err as Error).message}`)}`); }
+      try {
+        await step.capture(res, ctx);
+      } catch (err) {
+        console.log(`    ${warn(`capture error: ${(err as Error).message}`)}`);
+      }
     }
 
     if (stepFailed && step.required !== false) {
@@ -140,12 +159,17 @@ export async function runFlow<Ctx extends object>(flow: Flow<Ctx>): Promise<{ pa
   }
 
   if (flow.teardown) {
-    try { await flow.teardown(ctx); }
-    catch (err) { console.log(`  ${warn(`Teardown error: ${(err as Error).message}`)}`); }
+    try {
+      await flow.teardown(ctx);
+    } catch (err) {
+      console.log(`  ${warn(`Teardown error: ${(err as Error).message}`)}`);
+    }
   }
 
   console.log(`\n${'─'.repeat(50)}`);
-  console.log(`${BOLD}${passed > 0 && failed === 0 ? GREEN : RED}${passed} passed, ${failed} failed${RESET}\n`);
+  console.log(
+    `${BOLD}${passed > 0 && failed === 0 ? GREEN : RED}${passed} passed, ${failed} failed${RESET}\n`,
+  );
 
   return { passed, failed };
 }
@@ -162,7 +186,9 @@ export async function runAll(flows: Flow[]): Promise<void> {
 
   console.log(`${BOLD}${'═'.repeat(51)}`);
   console.log(`  Total: ${totalPassed + totalFailed} assertions`);
-  console.log(`  \x1b[32mPassed: ${totalPassed}\x1b[0m  ${totalFailed > 0 ? '\x1b[31m' : ''}${BOLD}Failed: ${totalFailed}\x1b[0m`);
+  console.log(
+    `  \x1b[32mPassed: ${totalPassed}\x1b[0m  ${totalFailed > 0 ? '\x1b[31m' : ''}${BOLD}Failed: ${totalFailed}\x1b[0m`,
+  );
   console.log(`${'═'.repeat(51)}\x1b[0m\n`);
 
   if (totalFailed > 0) process.exit(1);

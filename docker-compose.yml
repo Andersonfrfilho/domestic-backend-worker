@@ -8,23 +8,63 @@
 #   make infra-down   → para e remove os containers
 ###############################################################################
 
-name: zolve-worker
+name: ${COMPOSE_PROJECT_NAME:-domestic}
 
 services:
+  backend_worker:
+    image: node:25-alpine
+    container_name: ${WORKER_CONTAINER_NAME:-domestic_backend_worker}
+    working_dir: /app
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3002}
+      DATABASE_POSTGRES_HOST: ${WORKER_POSTGRES_HOST:-host.docker.internal}
+      DATABASE_POSTGRES_PORT: ${DATABASE_POSTGRES_PORT:-5432}
+      DATABASE_POSTGRES_NAME: ${DATABASE_POSTGRES_NAME:-zolve}
+      DATABASE_POSTGRES_USER: ${DATABASE_POSTGRES_USER:-zolve}
+      DATABASE_POSTGRES_PASSWORD: ${DATABASE_POSTGRES_PASSWORD:-zolve123}
+      MONGO_URI: mongodb://${WORKER_MONGO_HOST:-host.docker.internal}:${DATABASE_MONGO_PORT:-27017}/${DATABASE_MONGO_NAME:-zolve}
+      DATABASE_MONGO_HOST: ${WORKER_MONGO_HOST:-host.docker.internal}
+      DATABASE_MONGO_PORT: ${DATABASE_MONGO_PORT:-27017}
+      DATABASE_MONGO_NAME: ${DATABASE_MONGO_NAME:-zolve}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-zolve}:${RABBITMQ_PASS:-zolve123}@${WORKER_RABBITMQ_HOST:-host.docker.internal}:5672
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-zolve.events}
+      SMTP_HOST: ${WORKER_SMTP_HOST:-host.docker.internal}
+      SMTP_PORT: ${SMTP_PORT:-1025}
+    command: sh -c "if [ ! -d node_modules ] || [ -z \"$$(ls -A node_modules 2>/dev/null)\" ]; then npm ci --no-audit --no-fund --loglevel=error; fi && npm run start:dev"
+    ports:
+      - '${PORT:-3002}:3002'
+    volumes:
+      - ./:/app
+      - backend_worker_node_modules:/app/node_modules
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    depends_on:
+      database_postgres:
+        condition: service_started
+      queue_rabbitmq:
+        condition: service_started
+      database_mongo:
+        condition: service_started
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
 
   database_postgres:
     image: postgres:16
-    container_name: worker_database_postgres
+    container_name: ${POSTGRES_CONTAINER_NAME:-domestic_database_postgres}
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-zolve}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zolve123}
       POSTGRES_DB: ${POSTGRES_DB:-zolve}
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - database_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-zolve}"]
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-zolve}']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,26 +73,26 @@ services:
 
   database_mongo:
     image: mongo:7
-    container_name: worker_database_mongo
+    container_name: ${MONGO_CONTAINER_NAME:-domestic_database_mongo}
     ports:
-      - "27017:27017"
+      - '27017:27017'
     volumes:
       - database_mongo_data:/data/db
     restart: unless-stopped
 
   queue_rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: worker_queue_rabbitmq
+    container_name: ${RABBITMQ_CONTAINER_NAME:-domestic_queue_rabbitmq}
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-zolve}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-zolve123}
     ports:
-      - "5672:5672"
-      - "15672:15672"   # management UI → http://localhost:15672
+      - '5672:5672'
+      - '15672:15672' # management UI → http://localhost:15672
     volumes:
       - queue_rabbitmq_data:/var/lib/rabbitmq
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
       interval: 15s
       timeout: 10s
       retries: 5
@@ -62,13 +102,14 @@ services:
   # Captura e-mails localmente sem enviar — UI em http://localhost:8025
   mailpit:
     image: axllent/mailpit:latest
-    container_name: worker_mailpit
+    container_name: ${MAILPIT_CONTAINER_NAME:-worker_mailpit}
     ports:
-      - "1025:1025"   # SMTP
-      - "8025:8025"   # UI web
+      - '1025:1025' # SMTP
+      - '8025:8025' # UI web
     restart: unless-stopped
 
 volumes:
+  backend_worker_node_modules:
   database_postgres_data:
   database_mongo_data:
   queue_rabbitmq_data:

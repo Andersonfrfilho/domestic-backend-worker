@@ -20,16 +20,28 @@ export class EmailConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.email',
     queue: 'worker.notifications',
-    queueOptions: { durable: true },
+    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
   })
   async onEmailEvent(payload: EmailEvent): Promise<void> {
-    this.logger.info({ message: '[notifications.email] Received', context: this.logContext, params: { to: payload.to, template_id: payload.template_id } });
+    this.logger.info({
+      message: '[notifications.email] Received',
+      context: this.logContext,
+      params: { to: payload.to, template_id: payload.template_id },
+    });
 
     try {
       await this.handler.handle(payload);
-      this.logger.info({ message: '[notifications.email] Done', context: this.logContext, params: { to: payload.to } });
+      this.logger.info({
+        message: '[notifications.email] Done',
+        context: this.logContext,
+        params: { to: payload.to },
+      });
     } catch (error) {
-      this.logger.error({ message: '[notifications.email] Failed — will NACK', context: this.logContext, params: { to: payload.to, error: error?.message } });
+      this.logger.error({
+        message: '[notifications.email] Failed — will NACK',
+        context: this.logContext,
+        params: { to: payload.to, error: error?.message },
+      });
       throw error;
     }
   }

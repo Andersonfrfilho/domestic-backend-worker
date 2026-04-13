@@ -12,11 +12,11 @@
  *   FLOW_PROVIDER_ID UUID do provider_profile a usar nos testes
  */
 
-import { runAll, type Flow } from './lib/runner.ts';
-import healthFlows from './health.flow.ts';
-import workerFlows from './worker.flow.ts';
+import { runAll, type Flow } from './lib/runner';
+import healthFlows from './health.flow';
+import workerFlows from './worker.flow';
 
-const MODULES: Record<string, Flow[]> = {
+const MODULES: Record<string, Flow<any>[]> = {
   health: healthFlows,
   worker: workerFlows,
 };
@@ -24,7 +24,7 @@ const MODULES: Record<string, Flow[]> = {
 async function main(): Promise<void> {
   const target = process.argv[2];
 
-  let flows: Flow[];
+  let flows: Flow<any>[];
   if (target) {
     if (!MODULES[target]) {
       console.error(`Unknown module: "${target}". Available: ${Object.keys(MODULES).join(', ')}`);

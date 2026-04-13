@@ -1,5 +1,6 @@
 import { Module, OnModuleDestroy } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, getDataSourceToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 import { ConfigModule } from '@app/config/config.module';
 
@@ -53,9 +54,8 @@ import { MongoDataSource } from './mongo.database-conection';
   providers: [
     {
       provide: DATABASE_MONGO_SOURCE,
-      useFactory: async () => {
-        return MongoDataSource.initialize();
-      },
+      useFactory: (dataSource: DataSource) => dataSource,
+      inject: [getDataSourceToken(CONNECTIONS_NAMES.MONGO)],
     },
   ],
   exports: [TypeOrmModule],

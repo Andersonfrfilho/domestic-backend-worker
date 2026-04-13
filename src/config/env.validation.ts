@@ -75,15 +75,15 @@ export default Joi.object({
   // ============================================
   SMTP_HOST: Joi.string().default('smtp.sendgrid.net'),
   SMTP_PORT: Joi.number().default(587),
-  SMTP_USER: Joi.string().default('apikey'),
-  SMTP_PASSWORD: Joi.string().optional(),
+  SMTP_USER: Joi.string().allow('').default('apikey'),
+  SMTP_PASSWORD: Joi.string().allow('').optional(),
   SMTP_FROM_NAME: Joi.string().default('ZOLVE'),
   SMTP_FROM_EMAIL: Joi.string().default('noreply@zolve.com.br'),
 
   // ============================================
   // Firebase (Push Notifications)
   // ============================================
-  FIREBASE_PROJECT_ID: Joi.string().optional(),
-  FIREBASE_CLIENT_EMAIL: Joi.string().optional(),
-  FIREBASE_PRIVATE_KEY: Joi.string().optional(),
+  FIREBASE_PROJECT_ID: Joi.string().allow('').optional(),
+  FIREBASE_CLIENT_EMAIL: Joi.string().allow('').optional(),
+  FIREBASE_PRIVATE_KEY: Joi.string().allow('').optional(),
 });

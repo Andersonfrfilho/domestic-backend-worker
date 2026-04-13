@@ -2,7 +2,7 @@
 # ZOLVE Worker — Makefile
 ###############################################################################
 
-.PHONY: help infra infra-down infra-logs infra-ps \
+.PHONY: help infra worker-up down infra-down infra-logs infra-ps \
         dev migrate migrate-show migrate-revert \
         test test-watch test-cov test-e2e test-all \
         lint format flows \
@@ -11,6 +11,13 @@
 
 COMPOSE = docker compose -f docker-compose.yml
 ENV_FILE = .env
+COMPOSE_PROJECT_NAME ?= domestic
+LEGACY_COMPOSE_PROJECT_NAME ?= domestic-backend-api
+WORKER_CONTAINER_NAME ?= domestic_backend_worker
+POSTGRES_CONTAINER_NAME ?= domestic_database_postgres
+MONGO_CONTAINER_NAME ?= domestic_database_mongo
+RABBITMQ_CONTAINER_NAME ?= domestic_queue_rabbitmq
+MAILPIT_CONTAINER_NAME ?= worker_mailpit
 
 # Cria .env a partir do exemplo se ainda não existir
 $(ENV_FILE):
@@ -26,8 +33,38 @@ help: ## Mostra esta mensagem de ajuda
 
 # ─── Infra ────────────────────────────────────────────────────────────────
 
-infra: $(ENV_FILE) ## Sobe postgres, mongo, rabbitmq e mailpit
-	$(COMPOSE) up -d
+infra: $(ENV_FILE) ## Sobe postgres, mongo, rabbitmq e mailpit (apenas o que faltar)
+	@missing_services=""; \
+	for pair in \
+		"database_postgres:$(POSTGRES_CONTAINER_NAME)" \
+		"database_mongo:$(MONGO_CONTAINER_NAME)" \
+		"queue_rabbitmq:$(RABBITMQ_CONTAINER_NAME)" \
+		"mailpit:$(MAILPIT_CONTAINER_NAME)"; do \
+		service="$${pair%%:*}"; \
+		container_name="$${pair#*:}"; \
+		container_project="$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$$container_name" 2>/dev/null || true)"; \
+		container_running="$$(docker inspect -f '{{.State.Running}}' "$$container_name" 2>/dev/null || true)"; \
+		if [ "$$container_running" = "true" ] && [ "$$container_project" = "$(COMPOSE_PROJECT_NAME)" ]; then \
+			echo "✔ $$service já está no ar em '$$container_name' (project=$(COMPOSE_PROJECT_NAME))"; \
+		else \
+			if [ -n "$$container_project" ] && [ "$$container_project" != "$(COMPOSE_PROJECT_NAME)" ]; then \
+				echo "↻ Migrando '$$container_name' de project=$$container_project para project=$(COMPOSE_PROJECT_NAME)"; \
+				docker rm -f "$$container_name" >/dev/null; \
+			fi; \
+			missing_services="$$missing_services $$service"; \
+		fi; \
+	done; \
+	if [ -n "$$missing_services" ]; then \
+		echo "Subindo serviços ausentes:$$missing_services"; \
+		COMPOSE_IGNORE_ORPHANS=True \
+		POSTGRES_CONTAINER_NAME=$(POSTGRES_CONTAINER_NAME) \
+		MONGO_CONTAINER_NAME=$(MONGO_CONTAINER_NAME) \
+		RABBITMQ_CONTAINER_NAME=$(RABBITMQ_CONTAINER_NAME) \
+		MAILPIT_CONTAINER_NAME=$(MAILPIT_CONTAINER_NAME) \
+		COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) up -d $$missing_services; \
+	else \
+		echo "Todos os serviços já estão no ar (API/worker compartilhando a mesma infra)."; \
+	fi
 	@echo ""
 	@echo "Infra no ar:"
 	@echo "  PostgreSQL  → localhost:5432"
@@ -35,14 +72,36 @@ infra: $(ENV_FILE) ## Sobe postgres, mongo, rabbitmq e mailpit
 	@echo "  RabbitMQ    → localhost:5672  (management: http://localhost:15672)"
 	@echo "  Mailpit     → http://localhost:8025"
 
-infra-down: ## Para e remove os containers (mantém volumes)
-	$(COMPOSE) down
+worker-up: $(ENV_FILE) ## Sobe o container do worker (apenas se faltar)
+	@container_project="$$(docker inspect -f '{{ index .Config.Labels "com.docker.compose.project" }}' "$(WORKER_CONTAINER_NAME)" 2>/dev/null || true)"; \
+	container_running="$$(docker inspect -f '{{.State.Running}}' "$(WORKER_CONTAINER_NAME)" 2>/dev/null || true)"; \
+	if [ "$$container_running" = "true" ] && [ "$$container_project" = "$(COMPOSE_PROJECT_NAME)" ]; then \
+		echo "✔ backend_worker já está no ar em '$(WORKER_CONTAINER_NAME)' (project=$(COMPOSE_PROJECT_NAME))"; \
+	else \
+		if [ -n "$$container_project" ] && [ "$$container_project" != "$(COMPOSE_PROJECT_NAME)" ]; then \
+			echo "↻ Migrando '$(WORKER_CONTAINER_NAME)' de project=$$container_project para project=$(COMPOSE_PROJECT_NAME)"; \
+			docker rm -f "$(WORKER_CONTAINER_NAME)" >/dev/null; \
+		fi; \
+		echo "Subindo backend_worker..."; \
+		COMPOSE_IGNORE_ORPHANS=True \
+		WORKER_CONTAINER_NAME=$(WORKER_CONTAINER_NAME) \
+		POSTGRES_CONTAINER_NAME=$(POSTGRES_CONTAINER_NAME) \
+		MONGO_CONTAINER_NAME=$(MONGO_CONTAINER_NAME) \
+		RABBITMQ_CONTAINER_NAME=$(RABBITMQ_CONTAINER_NAME) \
+		MAILPIT_CONTAINER_NAME=$(MAILPIT_CONTAINER_NAME) \
+		COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) up -d backend_worker; \
+	fi
+
+down: ## Para e remove os containers (mantém volumes)
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) down
+
+infra-down: down ## Alias legado para down
 
 infra-logs: ## Tail de todos os logs da infra
-	$(COMPOSE) logs -f
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) logs -f
 
 infra-ps: ## Mostra status dos containers
-	$(COMPOSE) ps
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) ps
 
 # ─── Desenvolvimento ──────────────────────────────────────────────────────
 
@@ -99,17 +158,25 @@ flows-worker: ## Roda apenas o flow test do worker
 # ─── Shells ───────────────────────────────────────────────────────────────
 
 shell-db: ## psql no banco postgres
-	$(COMPOSE) exec database_postgres psql -U $${POSTGRES_USER:-zolve} -d $${POSTGRES_DB:-zolve}
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) exec database_postgres psql -U $${POSTGRES_USER:-zolve} -d $${POSTGRES_DB:-zolve}
 
 shell-mongo: ## mongosh no MongoDB
-	$(COMPOSE) exec database_mongo mongosh
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) exec database_mongo mongosh
 
 shell-rabbit: ## rabbitmqctl no RabbitMQ
-	$(COMPOSE) exec queue_rabbitmq rabbitmqctl status
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) exec queue_rabbitmq rabbitmqctl status
 
 # ─── Limpeza ──────────────────────────────────────────────────────────────
 
-clean: ## Para containers e remove volumes (cuidado: apaga dados!)
-	@echo "Isso apagará todos os dados dos volumes. Continuar? [y/N]"
-	@read ans; [ "$$ans" = "y" ] || exit 1
-	$(COMPOSE) down -v
+clean: ## Remove volumes da stack (use após `make down`)
+	COMPOSE_IGNORE_ORPHANS=True COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) $(COMPOSE) down -v
+	@if docker network inspect "$(LEGACY_COMPOSE_PROJECT_NAME)_default" >/dev/null 2>&1; then \
+		if [ "$$(docker network inspect "$(LEGACY_COMPOSE_PROJECT_NAME)_default" --format '{{len .Containers}}')" = "0" ]; then \
+			echo "Removendo rede legada: $(LEGACY_COMPOSE_PROJECT_NAME)_default"; \
+			docker network rm "$(LEGACY_COMPOSE_PROJECT_NAME)_default" >/dev/null; \
+		fi; \
+	fi
+
+all: infra worker-up ## Sobe infra + backend_worker de forma segura (apenas o que faltar)
+	@echo "✅ Stack do Worker verificada com sucesso!"
+

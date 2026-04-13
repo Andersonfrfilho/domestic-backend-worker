@@ -13,8 +13,8 @@
  *   RABBITMQ_URL     amqp://zolve:zolve123@localhost:5672
  */
 
-import { publishEvent, sleep, type Flow } from './lib/amqp.ts';
-import { request } from './lib/runner.ts';
+import { publishEvent, sleep } from './lib/amqp';
+import { type Flow, runAll } from './lib/runner';
 
 // ---------------------------------------------------------------------------
 // Flow 1 — Connectivity: worker health + RabbitMQ reachable
@@ -22,7 +22,9 @@ import { request } from './lib/runner.ts';
 
 const BASE_URL = (process.env.BASE_URL ?? 'http://localhost:3002').replace(/\/$/, '');
 
-interface WorkerCtx { healthStatus?: string }
+interface WorkerCtx extends Record<string, unknown> {
+  healthStatus?: string;
+}
 
 const connectivityFlow: Flow<WorkerCtx> = {
   name: 'Worker — Connectivity Check',
@@ -36,7 +38,11 @@ const connectivityFlow: Flow<WorkerCtx> = {
         ctx.healthStatus = String(body?.['status']);
         return [
           { label: 'status 200', ok: res.status === 200, detail: `got ${res.status}` },
-          { label: 'status is ok', ok: body?.['status'] === 'ok', detail: String(body?.['status']) },
+          {
+            label: 'status is ok',
+            ok: body?.['status'] === 'ok',
+            detail: String(body?.['status']),
+          },
         ];
       },
     },
@@ -47,7 +53,9 @@ const connectivityFlow: Flow<WorkerCtx> = {
 // Flow 2 — rating: review.created atualiza average_rating
 // ---------------------------------------------------------------------------
 
-interface RatingCtx { providerId: string }
+interface RatingCtx extends Record<string, unknown> {
+  providerId: string;
+}
 
 const PROVIDER_ID = process.env.FLOW_PROVIDER_ID ?? '00000000-0000-0000-0000-000000000001';
 
@@ -63,18 +71,20 @@ const ratingFlow: Flow<RatingCtx> = {
       name: 'Publish review.created event',
       request: (ctx) => ({
         method: 'POST',
-        path: '/__flow/publish',  // sentinel — handled below via publishEvent
+        path: '/__flow/publish', // sentinel — handled below via publishEvent
         body: { routingKey: 'review.created', providerId: ctx.providerId },
       }),
       // O step faz publish direto — não é HTTP contra o worker
       expect: () => [],
-      capture: async (_res, ctx) => {
-        await publishEvent('review.created', {
-          review_id: '00000000-flow-test-review-000000000001',
-          provider_id: ctx.providerId,
-          rating: 5,
-        });
-        await sleep(1500); // aguarda o consumer processar
+      capture: (_res, ctx) => {
+        void (async () => {
+          await publishEvent('review.created', {
+            review_id: '00000000-flow-test-review-000000000001',
+            provider_id: ctx.providerId,
+            rating: 5,
+          });
+          await sleep(1500); // aguarda o consumer processar
+        })();
       },
       required: false,
     },
@@ -85,7 +95,9 @@ const ratingFlow: Flow<RatingCtx> = {
 // Flow 3 — service-request.created: consumer publica email + push
 // ---------------------------------------------------------------------------
 
-interface ServiceRequestCtx { requestId: string }
+interface ServiceRequestCtx extends Record<string, unknown> {
+  requestId: string;
+}
 
 const serviceRequestFlow: Flow<ServiceRequestCtx> = {
   name: 'Worker — ServiceRequest Consumer Flow',
@@ -99,20 +111,22 @@ const serviceRequestFlow: Flow<ServiceRequestCtx> = {
       name: 'Publish service_request.created event',
       request: () => ({ method: 'POST', path: '/__flow/noop', body: {} }),
       expect: () => [],
-      capture: async (_res, ctx) => {
-        await publishEvent('service_request.created', {
-          event_type: 'created',
-          request_id: ctx.requestId,
-          provider_id: PROVIDER_ID,
-          provider_user_id: '00000000-0000-0000-0000-000000000010',
-          provider_email: 'provider@flowtest.com',
-          contractor_id: '00000000-0000-0000-0000-000000000011',
-          contractor_user_id: '00000000-0000-0000-0000-000000000012',
-          contractor_email: 'contractor@flowtest.com',
-          service_name: 'Diária Flow Test',
-          scheduled_at: '2026-05-01T10:00:00Z',
-        });
-        await sleep(1500);
+      capture: (_res, ctx) => {
+        void (async () => {
+          await publishEvent('service_request.created', {
+            event_type: 'created',
+            request_id: ctx.requestId,
+            provider_id: PROVIDER_ID,
+            provider_user_id: '00000000-0000-0000-0000-000000000010',
+            provider_email: 'provider@flowtest.com',
+            contractor_id: '00000000-0000-0000-0000-000000000011',
+            contractor_user_id: '00000000-0000-0000-0000-000000000012',
+            contractor_email: 'contractor@flowtest.com',
+            service_name: 'Diária Flow Test',
+            scheduled_at: '2026-05-01T10:00:00Z',
+          });
+          await sleep(1500);
+        })();
       },
       required: false,
     },
@@ -123,9 +137,9 @@ const serviceRequestFlow: Flow<ServiceRequestCtx> = {
 // Flow 4 — provider-approval: provider.approved event
 // ---------------------------------------------------------------------------
 
-interface ProviderApprovalCtx Record<string, unknown>
+interface ProviderApprovalCtx extends Record<string, unknown> {}
 
-const providerApprovalFlow: Flow = {
+const providerApprovalFlow: Flow<ProviderApprovalCtx> = {
   name: 'Worker — ProviderApproval Consumer Flow',
 
   steps: [
@@ -133,14 +147,16 @@ const providerApprovalFlow: Flow = {
       name: 'Publish provider.approved event',
       request: () => ({ method: 'POST', path: '/__flow/noop', body: {} }),
       expect: () => [],
-      capture: async () => {
-        await publishEvent('provider.approved', {
-          provider_id: PROVIDER_ID,
-          user_id: '00000000-0000-0000-0000-000000000010',
-          email: 'provider@flowtest.com',
-          fcm_token: 'fcm-flow-test-token',
-        });
-        await sleep(1500);
+      capture: () => {
+        void (async () => {
+          await publishEvent('provider.approved', {
+            provider_id: PROVIDER_ID,
+            user_id: '00000000-0000-0000-0000-000000000010',
+            email: 'provider@flowtest.com',
+            fcm_token: 'fcm-flow-test-token',
+          });
+          await sleep(1500);
+        })();
       },
       required: false,
     },
@@ -150,6 +166,10 @@ const providerApprovalFlow: Flow = {
 export default [connectivityFlow, ratingFlow, serviceRequestFlow, providerApprovalFlow];
 
 if (process.argv[1]?.endsWith('worker.flow.ts')) {
-  const { runAll } = await import('./lib/runner.ts');
-  await runAll([connectivityFlow, ratingFlow, serviceRequestFlow, providerApprovalFlow]);
+  runAll([connectivityFlow, ratingFlow, serviceRequestFlow, providerApprovalFlow]).catch(
+    (err: unknown) => {
+      console.error('Worker flow runner crashed:', err);
+      process.exit(1);
+    },
+  );
 }

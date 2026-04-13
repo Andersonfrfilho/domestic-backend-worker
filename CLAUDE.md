@@ -5,6 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
+# Docker / Infra (padrão do projeto)
+make all                 # Sobe toda a stack
+make down                # Para containers (mantém volumes)
+make clean               # Remove volumes (use após make down)
+
 # Development
 npm run start:dev           # Watch mode
 npm run start:dev:local     # Load .env.dev.local and watch
@@ -31,6 +36,13 @@ npm run migration:show      # Show migration status
 npm run flows               # All modules
 npm run flows:worker        # Worker module only
 ```
+
+## Project Rules
+
+- Always use `Makefile` targets for local Docker lifecycle.
+- Default startup flow: `make all`.
+- Default teardown flow: `make down && make clean`.
+- Avoid running raw `docker compose up/down` commands directly unless debugging a specific Compose issue.
 
 ## Architecture
 
@@ -69,6 +81,7 @@ Consumer (@RabbitSubscribe) → Handler (lógica) → Repository / Email / Fireb
 ```
 
 Each module follows the pattern:
+
 ```
 <module>/
 ├── <module>.module.ts
@@ -92,14 +105,14 @@ Each module follows the pattern:
 
 ### RabbitMQ Topology
 
-| Queue | Routing Keys | Handler |
-|---|---|---|
+| Queue                      | Routing Keys                             | Handler                    |
+| -------------------------- | ---------------------------------------- | -------------------------- |
 | `worker.provider.approval` | `provider.approved`, `provider.rejected` | `ProviderApprovalConsumer` |
-| `worker.rating` | `review.created` | `RatingConsumer` |
-| `worker.service-requests` | `service_request.*` | `ServiceRequestConsumer` |
-| `worker.notifications` | `notifications.email` | `EmailConsumer` |
-| `worker.notifications` | `notifications.push` | `PushConsumer` |
-| `worker.dlq` | — (DLX fanout) | Dead letter queue |
+| `worker.rating`            | `review.created`                         | `RatingConsumer`           |
+| `worker.service-requests`  | `service_request.*`                      | `ServiceRequestConsumer`   |
+| `worker.notifications`     | `notifications.email`                    | `EmailConsumer`            |
+| `worker.notifications`     | `notifications.push`                     | `PushConsumer`             |
+| `worker.dlq`               | — (DLX fanout)                           | Dead letter queue          |
 
 Exchange principal: `zolve.events` (topic, durable)
 DLX: `zolve.dlx` (fanout, durable) → `worker.dlq`
@@ -117,6 +130,7 @@ Located at `src/modules/email/templates/*.hbs`. Template IDs:
 Validated via Joi schema in `src/config/env.validation.ts`. This is the authoritative reference for all config options. E2E tests use `.env.e2e`.
 
 Key vars:
+
 - `RABBITMQ_URL`, `RABBITMQ_EXCHANGE`, `RABBITMQ_PREFETCH`
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM_NAME`, `SMTP_FROM_EMAIL`
 - `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`
@@ -128,8 +142,8 @@ Key vars:
 
 Always keep `@adatechnology/*` dependencies at the correct versions:
 
-| Lib | Version | Used for |
-|---|---|---|
+| Lib                     | Version  | Used for                                 |
+| ----------------------- | -------- | ---------------------------------------- |
 | `@adatechnology/logger` | `^0.0.9` | Structured logging via `LOGGER_PROVIDER` |
 
 > **Not needed in this service** (worker is a queue consumer with no auth, no cache, no HTTP calls):
@@ -164,6 +178,7 @@ export const PROVIDER_APPROVAL_LOG_MESSAGES = {
 ```
 
 **Log points per handler:**
+
 - `info` at the start of `handle()` with `message_id` and relevant payload fields
 - `warn` before every skipped/ignored message (idempotence check)
 - `warn` before every thrown error
@@ -181,10 +196,12 @@ export const PROVIDER_APPROVAL_LOG_MESSAGES = {
 Every module must have a corresponding flow test in `scripts/flows/<module>.flow.js`. Flow tests verify end-to-end business behavior against a running environment with real queues.
 
 **When to create or update:**
+
 - When a new consumer is added → create `scripts/flows/<module>.flow.js`
 - When a handler's behavior changes → update the corresponding flow
 
 **Rules:**
+
 - Each flow exports an array of flow objects consumed by `scripts/flows/index.js`
 - The `setup` function must clean up state left by previous failed runs
 - Steps must capture IDs from responses and pass them to subsequent steps via `ctx`
@@ -193,6 +210,7 @@ Every module must have a corresponding flow test in `scripts/flows/<module>.flow
 - Auth tokens obtained via Keycloak (`lib/auth.js`) — never hardcode tokens
 
 **Running:**
+
 ```bash
 npm run flows          # all modules
 npm run flows:worker   # single module
