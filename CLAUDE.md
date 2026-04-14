@@ -186,10 +186,14 @@ export const PROVIDER_APPROVAL_LOG_MESSAGES = {
 
 ### Testing conventions
 
+- **Co-locação de testes:** Todos os testes (unit e E2E) ficam na **mesma pasta** do arquivo que testam, nunca em `test/e2e/` ou `test/unit/` separados.
 - Unit test files: `*.unit.spec.ts`
+- E2E test files: `*.e2e.spec.ts`
 - Mock: `AmqpConnection`, TypeORM repositories, `EmailProvider`, `FirebaseProvider`
 - Coverage threshold: 50% functions/lines/statements
 - Every module needs both `*.consumer.unit.spec.ts` and `*.handler.unit.spec.ts`
+- Naming: kebab-case arquivos, PascalCase classes, camelCase métodos
+- Tokens de injeção exportados em `*.token.ts` e re-exportados no `index.ts` do módulo
 
 ### Flow tests (Spec-Driven)
 
