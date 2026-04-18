@@ -51,6 +51,10 @@ services:
       mailpit:
         condition: service_started
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 384m
 
   database_postgres:
     image: postgres:16
@@ -70,6 +74,10 @@ services:
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
 
   database_mongo:
     image: mongo:7
@@ -79,6 +87,10 @@ services:
     volumes:
       - database_mongo_data:/data/db
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512m
 
   queue_rabbitmq:
     image: rabbitmq:3.13-management-alpine
@@ -98,6 +110,10 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 300m
 
   # Captura e-mails localmente sem enviar — UI em http://localhost:8025
   mailpit:
@@ -107,6 +123,10 @@ services:
       - '1025:1025' # SMTP
       - '8025:8025' # UI web
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 64m
 
 volumes:
   backend_worker_node_modules:
