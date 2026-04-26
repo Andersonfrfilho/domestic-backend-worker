@@ -5,7 +5,9 @@ import { Module } from '@nestjs/common';
   imports: [
     RabbitMQModule.forRootAsync({
       useFactory: () => ({
-        uri: process.env.RABBITMQ_URL ?? 'amqp://guest:guest@localhost:5672',
+        uri:
+          process.env.RABBITMQ_URL ??
+          `amqp://${process.env.QUEUE_RABBITMQ_USER ?? 'guest'}:${process.env.QUEUE_RABBITMQ_PASS ?? 'guest'}@${process.env.QUEUE_RABBITMQ_HOST ?? 'localhost'}:${process.env.QUEUE_RABBITMQ_PORT ?? '5672'}`,
         exchanges: [
           { name: 'zolve.events', type: 'topic', options: { durable: true } },
           { name: 'zolve.dlx', type: 'fanout', options: { durable: true } },
