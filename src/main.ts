@@ -10,7 +10,7 @@ async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
-    { bufferLogs: true },
+    { bufferLogs: false },
   );
 
   app.useGlobalPipes(
@@ -27,5 +27,7 @@ async function bootstrap() {
   console.log(`Worker running on port ${port}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('Fatal bootstrap error:', err);
+  process.exit(1);
+});
