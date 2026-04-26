@@ -1,5 +1,6 @@
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, OnModuleInit } from '@nestjs/common';
+import type { ConfirmChannel } from 'amqplib';
 
 import { AppErrorFactory } from '@modules/error/app.error.factory';
 import { MethodNotImplementedErrorCode } from '@modules/error/error-codes';
@@ -10,24 +11,20 @@ export class RabbitBindingsService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      await this.waitForChannel();
-      await this.createBindings();
+      const channel = await this.waitForChannel();
+      await this.createBindings(channel);
       console.log('✅ RabbitMQ bindings created successfully');
     } catch (error) {
       console.error('❌ Error creating RabbitMQ bindings:', error);
     }
   }
 
-  private async waitForChannel(maxRetries = 10, delayMs = 100): Promise<void> {
+  private async waitForChannel(maxRetries = 30, delayMs = 500): Promise<ConfirmChannel> {
     for (let i = 0; i < maxRetries; i++) {
-      try {
-        const channel = this.amqpConnection.channel;
-        if (channel) {
-          console.log('🔗 RabbitMQ channel available, creating bindings...');
-          return;
-        }
-      } catch {
-        // Channel not ready yet
+      const channel = this.amqpConnection.managedChannel?.channel as ConfirmChannel | undefined;
+      if (channel) {
+        console.log('🔗 RabbitMQ channel available, creating bindings...');
+        return channel;
       }
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
@@ -37,9 +34,7 @@ export class RabbitBindingsService implements OnModuleInit {
     });
   }
 
-  private async createBindings() {
-    const channel = this.amqpConnection.channel;
-
+  private async createBindings(channel: ConfirmChannel) {
     // Worker topology (exchange: zolve.events)
     await channel.bindQueue('worker.provider.approval', 'zolve.events', 'provider.approved');
     await channel.bindQueue('worker.provider.approval', 'zolve.events', 'provider.rejected');
