@@ -6,10 +6,10 @@ export const rabbitConnection = RabbitMQModule.forRootAsync({
   useFactory: (configService: ConfigService) => {
     const rabbitMqUrl = configService.get<string>('RABBITMQ_URL');
 
-    const queueHost = configService.get<string>('QUEUE_RABBITMQ_HOST') ?? 'domestic_queue_rabbitmq';
+    const queueHost = configService.get<string>('QUEUE_RABBITMQ_HOST') ?? 'rabbitmq';
     const queuePort = configService.get<string>('QUEUE_RABBITMQ_PORT') ?? '5672';
-    const queueUser = configService.get<string>('QUEUE_RABBITMQ_USER') ?? 'zolve';
-    const queuePass = configService.get<string>('QUEUE_RABBITMQ_PASS') ?? 'zolve123';
+    const queueUser = configService.get<string>('QUEUE_RABBITMQ_USER') ?? 'domestic';
+    const queuePass = configService.get<string>('QUEUE_RABBITMQ_PASS') ?? 'backendapi123';
 
     const fallbackUri = `amqp://${queueUser}:${queuePass}@${queueHost}:${queuePort}`;
     const uri = rabbitMqUrl && !rabbitMqUrl.includes('undefined') ? rabbitMqUrl : fallbackUri;

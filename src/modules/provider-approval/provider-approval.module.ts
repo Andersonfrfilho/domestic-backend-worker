@@ -5,7 +5,6 @@ import { ProviderVerification } from '@modules/shared/providers/database/entitie
 import { ProviderVerificationLog } from '@modules/shared/providers/database/entities/provider-verification-log.entity';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
 import { NotificationModule } from '@modules/notification/notification.module';
-import { WorkerRabbitMQModule } from '@modules/shared/rabbitmq/rabbitmq.module';
 
 import { ProviderApprovalHandler } from './provider-approval.handler';
 import { ProviderApprovalConsumer } from './provider-approval.consumer';
@@ -17,7 +16,6 @@ import { ProviderApprovalConsumer } from './provider-approval.consumer';
       CONNECTIONS_NAMES.POSTGRES,
     ),
     NotificationModule,
-    WorkerRabbitMQModule,
   ],
   providers: [ProviderApprovalHandler, ProviderApprovalConsumer],
 })
