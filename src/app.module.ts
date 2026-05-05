@@ -17,7 +17,10 @@ import { PushModule } from './modules/push/push.module';
   imports: [
     MetricsModule,
     ConfigModule,
-    LoggerModule.forRoot({ level: process.env.LOG_LEVEL || 'info' }),
+    LoggerModule.forRoot({
+      level: process.env.LOG_LEVEL || 'info',
+      interceptorExcludedPaths: ['/health', '/metrics'],
+    }),
     SharedModule,
     HealthModule,
     NotificationModule,
