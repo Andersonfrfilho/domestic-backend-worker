@@ -14,7 +14,6 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "start:dev:local": "cp .env.dev.local .env && npm run start:dev",
-    "start:dev:k8s": "cp .env.local .env && npm run start:dev",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --max-warnings 0",
     "lint:check": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings 0",
     "lint:imports": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix --rule 'import/order: error'",

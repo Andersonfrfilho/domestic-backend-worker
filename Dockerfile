@@ -42,4 +42,4 @@ RUN mkdir -p logs
 
 # PRODUÇÃO: Inicia diretamente (sem rodar migrations)
 # Migrations devem ser rodadas manualmente ou via pipeline CI/CD
-CMD ["npm", "run", "start:prod"]# bump
+CMD ["npm", "run", "start:prod"]
