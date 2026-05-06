@@ -16,16 +16,26 @@ import { EmailModule } from './modules/email/email.module';
 import { PushModule } from './modules/push/push.module';
 import { UserVerificationModule } from './modules/user-verification/user-verification.module';
 
-@Module({
-  imports: [
-    MetricsModule,
-    ConfigModule,
-    LoggerModule.forRoot({
-      level: process.env.LOG_LEVEL || 'info',
-      interceptorExcludedPaths: ['/health', '/metrics'],
-    }),
-    SharedModule,
-    HealthModule,
+const workerModules = [
+  MetricsModule,
+  ConfigModule,
+  LoggerModule.forRoot({
+    level: process.env.LOG_LEVEL || 'info',
+    interceptorExcludedPaths: ['/health', '/metrics'],
+  }),
+  SharedModule,
+  HealthModule,
+  KeycloakAdminModule.forRoot({
+    baseUrl: process.env.KEYCLOAK_BASE_URL || 'http://localhost:8081',
+    realm: process.env.KEYCLOAK_REALM || 'BACKEND',
+    adminUser: process.env.KEYCLOAK_ADMIN_USER || 'admin',
+    adminPassword: process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin',
+  }),
+];
+
+// Only import RabbitMQ consumer modules if not explicitly disabled
+if (process.env.DISABLE_RABBITMQ !== 'true') {
+  workerModules.push(
     NotificationModule,
     ProviderApprovalModule,
     RatingModule,
@@ -33,13 +43,11 @@ import { UserVerificationModule } from './modules/user-verification/user-verific
     EmailModule,
     PushModule,
     UserVerificationModule,
-    KeycloakAdminModule.forRoot({
-      baseUrl: process.env.KEYCLOAK_BASE_URL || 'http://localhost:8081',
-      realm: process.env.KEYCLOAK_REALM || 'BACKEND',
-      adminUser: process.env.KEYCLOAK_ADMIN_USER || 'admin',
-      adminPassword: process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin',
-    }),
-  ],
+  );
+}
+
+@Module({
+  imports: workerModules,
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
