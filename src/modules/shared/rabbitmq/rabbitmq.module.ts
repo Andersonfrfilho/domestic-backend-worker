@@ -12,8 +12,8 @@ const logger = new Logger('RabbitMQModule');
         return {
           uri:
             process.env.RABBITMQ_URL ||
-            `amqp://${process.env.QUEUE_RABBITMQ_USER || 'guest'}:${process.env.QUEUE_RABBITMQ_PASS || 'guest'}@${process.env.QUEUE_RABBITMQ_HOST || 'localhost'}:${process.env.QUEUE_RABBITMQ_PORT || '5672'}/`,
-          connectionInitOptions: { wait: false },
+            `amqp://${process.env.QUEUE_RABBITMQ_USER || 'guest'}:${process.env.QUEUE_RABBITMQ_PASS || 'guest'}@${process.env.QUEUE_RABBITMQ_HOST || 'localhost'}:${process.env.QUEUE_RABBITMQ_PORT || '5672'}/%2F`,
+          connectionInitOptions: { timeout: 30000, wait: true },
           prefetchCount: Number(process.env.RABBITMQ_PREFETCH ?? 10),
         };
       },
