@@ -23,7 +23,14 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT ?? 3002;
-  await app.listen(port, '0.0.0.0');
+
+  // Start listening with a timeout to prevent hanging
+  const listenPromise = app.listen(port, '0.0.0.0');
+  const timeoutPromise = new Promise<void>((_, reject) =>
+    setTimeout(() => reject(new Error('App.listen() timeout after 30 seconds')), 30000)
+  );
+
+  await Promise.race([listenPromise, timeoutPromise]);
   console.log(`Worker running on port ${port}`);
 }
 
