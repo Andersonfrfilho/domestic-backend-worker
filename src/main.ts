@@ -7,11 +7,25 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-    { bufferLogs: false },
-  );
+  console.log('Starting bootstrap...');
+
+  // Create app with timeout to catch module initialization hangs
+  let app: NestFastifyApplication;
+  try {
+    const createPromise = NestFactory.create<NestFastifyApplication>(
+      AppModule,
+      new FastifyAdapter(),
+      { bufferLogs: false },
+    );
+    const createTimeoutPromise = new Promise<NestFastifyApplication>((_, reject) =>
+      setTimeout(() => reject(new Error('NestFactory.create() timeout after 60 seconds')), 60000)
+    );
+    app = await Promise.race([createPromise, createTimeoutPromise]);
+    console.log('Application created successfully');
+  } catch (err) {
+    console.error('Failed to create application:', err instanceof Error ? err.message : err);
+    throw err;
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -25,6 +39,7 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3002;
 
   // Start listening with a timeout to prevent hanging
+  console.log(`Starting to listen on port ${port}...`);
   const listenPromise = app.listen(port, '0.0.0.0');
   const timeoutPromise = new Promise<void>((_, reject) =>
     setTimeout(() => reject(new Error('App.listen() timeout after 90 seconds')), 90000)
