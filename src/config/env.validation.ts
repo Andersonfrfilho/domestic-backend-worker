@@ -86,4 +86,14 @@ export default Joi.object({
   FIREBASE_PROJECT_ID: Joi.string().allow('').optional(),
   FIREBASE_CLIENT_EMAIL: Joi.string().allow('').optional(),
   FIREBASE_PRIVATE_KEY: Joi.string().allow('').optional(),
+
+  // ============================================
+  // Keycloak Admin API
+  // ============================================
+  KEYCLOAK_BASE_URL: Joi.string().default('http://localhost:8081'),
+  KEYCLOAK_REALM: Joi.string().default('BACKEND'),
+  KEYCLOAK_ADMIN_USER: Joi.string().default('admin'),
+  KEYCLOAK_ADMIN_PASSWORD: Joi.string().default('admin'),
+  KEYCLOAK_CLIENT_ID: Joi.string().default('backend-api'),
+  KEYCLOAK_CLIENT_SECRET: Joi.string().allow('').optional(),
 });

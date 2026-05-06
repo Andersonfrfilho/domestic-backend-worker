@@ -20,6 +20,13 @@ export interface EnvironmentProviderInterface {
   readonly databasePostgresLogging: boolean;
   readonly databasePostgresTimezone: string;
 
+  readonly keycloakBaseUrl: string;
+  readonly keycloakRealm: string;
+  readonly keycloakAdminUser: string;
+  readonly keycloakAdminPassword: string;
+  readonly keycloakClientId: string;
+  readonly keycloakClientSecret: string;
+
   isDevelopment(): boolean;
   isProduction(): boolean;
   isTest(): boolean;

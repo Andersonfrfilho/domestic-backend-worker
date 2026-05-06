@@ -76,6 +76,30 @@ export class EnvironmentProvider implements EnvironmentProviderInterface {
     return this.configService.getOrThrow<string>(ENV_VARS.DB_TIMEZONE);
   }
 
+  get keycloakBaseUrl(): string {
+    return this.configService.getOrThrow<string>(ENV_VARS.KEYCLOAK_BASE_URL);
+  }
+
+  get keycloakRealm(): string {
+    return this.configService.getOrThrow<string>(ENV_VARS.KEYCLOAK_REALM);
+  }
+
+  get keycloakAdminUser(): string {
+    return this.configService.getOrThrow<string>(ENV_VARS.KEYCLOAK_ADMIN_USER);
+  }
+
+  get keycloakAdminPassword(): string {
+    return this.configService.getOrThrow<string>(ENV_VARS.KEYCLOAK_ADMIN_PASSWORD);
+  }
+
+  get keycloakClientId(): string {
+    return this.configService.getOrThrow<string>(ENV_VARS.KEYCLOAK_CLIENT_ID);
+  }
+
+  get keycloakClientSecret(): string {
+    return this.configService.get<string>(ENV_VARS.KEYCLOAK_CLIENT_SECRET) ?? '';
+  }
+
   // ============================================
   // Environment Helpers
   // ============================================

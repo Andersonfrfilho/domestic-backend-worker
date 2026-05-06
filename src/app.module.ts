@@ -12,6 +12,7 @@ import { RatingModule } from './modules/rating/rating.module';
 import { ServiceRequestWorkerModule } from './modules/service-request-worker/service-request.module';
 import { EmailModule } from './modules/email/email.module';
 import { PushModule } from './modules/push/push.module';
+import { UserVerificationModule } from './modules/user-verification/user-verification.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { PushModule } from './modules/push/push.module';
     ServiceRequestWorkerModule,
     EmailModule,
     PushModule,
+    UserVerificationModule,
   ],
 })
 export class AppModule implements NestModule {
