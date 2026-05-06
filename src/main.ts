@@ -27,7 +27,7 @@ async function bootstrap() {
   // Start listening with a timeout to prevent hanging
   const listenPromise = app.listen(port, '0.0.0.0');
   const timeoutPromise = new Promise<void>((_, reject) =>
-    setTimeout(() => reject(new Error('App.listen() timeout after 30 seconds')), 30000)
+    setTimeout(() => reject(new Error('App.listen() timeout after 90 seconds')), 90000)
   );
 
   await Promise.race([listenPromise, timeoutPromise]);
