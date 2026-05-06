@@ -1,9 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
+import {
+  KEYCLOAK_ADMIN_CLIENT,
+  type KeycloakAdminClientInterface,
+} from '@adatechnology/keycloak-admin';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
-import { KeycloakAdminProvider } from '@modules/shared/keycloak/keycloak-admin.provider';
-import { KEYCLOAK_ADMIN_PROVIDER } from '@modules/shared/keycloak/keycloak.token';
 
 import type { UserEmailVerifiedEvent } from './dtos/user-email-verified.event.dto';
 
@@ -12,8 +14,8 @@ export class UserVerificationHandler {
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(
-    @Inject(KEYCLOAK_ADMIN_PROVIDER)
-    private readonly keycloakAdmin: KeycloakAdminProvider,
+    @Inject(KEYCLOAK_ADMIN_CLIENT)
+    private readonly keycloakAdmin: KeycloakAdminClientInterface,
     @Inject(LOGGER_PROVIDER)
     private readonly logger: LogProviderInterface,
   ) {}
@@ -26,7 +28,13 @@ export class UserVerificationHandler {
     });
 
     try {
-      await this.keycloakAdmin.updateUserEmailVerified(event.keycloak_id, true);
+      const tokenResult = await this.keycloakAdmin.getAdminToken();
+      await this.keycloakAdmin.updateUser({
+        userId: event.keycloak_id,
+        userData: { emailVerified: true },
+        adminToken: tokenResult.accessToken,
+      });
+
       this.logger.info({
         message: 'Keycloak emailVerified updated successfully',
         context: this.logContext,

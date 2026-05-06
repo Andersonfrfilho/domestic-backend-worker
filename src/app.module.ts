@@ -10,6 +10,8 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { ProviderApprovalModule } from './modules/provider-approval/provider-approval.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { ServiceRequestWorkerModule } from './modules/service-request-worker/service-request.module';
+import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
+
 import { EmailModule } from './modules/email/email.module';
 import { PushModule } from './modules/push/push.module';
 import { UserVerificationModule } from './modules/user-verification/user-verification.module';
@@ -31,6 +33,12 @@ import { UserVerificationModule } from './modules/user-verification/user-verific
     EmailModule,
     PushModule,
     UserVerificationModule,
+    KeycloakAdminModule.forRoot({
+      baseUrl: process.env.KEYCLOAK_BASE_URL || 'http://localhost:8081',
+      realm: process.env.KEYCLOAK_REALM || 'BACKEND',
+      adminUser: process.env.KEYCLOAK_ADMIN_USER || 'admin',
+      adminPassword: process.env.KEYCLOAK_ADMIN_PASSWORD || 'admin',
+    }),
   ],
 })
 export class AppModule implements NestModule {
