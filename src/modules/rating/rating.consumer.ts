@@ -20,7 +20,7 @@ export class RatingConsumer {
     exchange: 'zolve.events',
     routingKey: 'review.created',
     queue: 'worker.rating',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onReviewCreated(payload: ReviewCreatedEvent): Promise<void> {
     this.logger.info({ message: '[review.created] Received', context: this.logContext, params: { provider_id: payload.provider_id } });

@@ -20,7 +20,7 @@ export class EmailConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.email',
     queue: 'worker.notifications',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onEmailEvent(payload: EmailEvent): Promise<void> {
     this.logger.info({

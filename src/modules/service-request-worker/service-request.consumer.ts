@@ -20,7 +20,7 @@ export class ServiceRequestConsumer {
     exchange: 'zolve.events',
     routingKey: 'service_request.*',
     queue: 'worker.service-requests',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onServiceRequestEvent(payload: ServiceRequestEvent): Promise<void> {
     this.logger.info({ message: '[service_request.*] Received', context: this.logContext, params: { event_type: payload.event_type, request_id: payload.request_id } });

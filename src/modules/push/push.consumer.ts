@@ -20,7 +20,7 @@ export class PushConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.push',
     queue: 'worker.notifications',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onPushEvent(payload: PushEvent): Promise<void> {
     this.logger.info({

@@ -20,7 +20,7 @@ export class UserVerificationConsumer {
     exchange: 'zolve.events',
     routingKey: 'user.email.verified',
     queue: 'worker.user.verification',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onUserEmailVerified(payload: UserEmailVerifiedEvent): Promise<void> {
     this.logger.info({

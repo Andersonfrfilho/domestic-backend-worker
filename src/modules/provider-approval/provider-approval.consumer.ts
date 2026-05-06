@@ -20,7 +20,6 @@ export class ProviderApprovalConsumer {
     exchange: 'zolve.events',
     routingKey: 'provider.approved',
     queue: 'worker.provider.approval',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
   })
   async onProviderApproved(payload: ProviderApprovalEvent): Promise<void> {
     this.logger.info({ message: '[provider.approved] Received', context: this.logContext, params: { provider_id: payload.provider_id } });
@@ -37,7 +36,7 @@ export class ProviderApprovalConsumer {
     exchange: 'zolve.events',
     routingKey: 'provider.rejected',
     queue: 'worker.provider.approval',
-    queueOptions: { durable: true, arguments: { 'x-dead-letter-exchange': 'zolve.dlx' } },
+    
   })
   async onProviderRejected(payload: ProviderApprovalEvent): Promise<void> {
     this.logger.info({ message: '[provider.rejected] Received', context: this.logContext, params: { provider_id: payload.provider_id } });
