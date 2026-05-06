@@ -33,7 +33,8 @@
     "migration:show": "node scripts/migration.js show",
     "migration:run": "node scripts/migration.js run",
     "migration:revert": "node scripts/migration.js revert",
-    "migration:generate": "node scripts/migration.js generate"
+    "migration:generate": "node scripts/migration.js generate",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@adatechnology/http-client": "^0.0.13",
@@ -66,7 +67,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "tsconfig-paths": "^4.2.0",
-    "typeorm": "^0.3.27"
+    "typeorm": "^0.3.27",
+    "patch-package": "^8.0.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

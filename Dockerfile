@@ -9,6 +9,8 @@ RUN npm ci
 
 COPY . .
 
+RUN npx patch-package
+
 RUN npm run build
 
 # Compila migrations separadamente (se existirem)

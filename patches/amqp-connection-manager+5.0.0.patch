@@ -1,0 +1,13 @@
+diff --git a/node_modules/amqp-connection-manager/dist/cjs/index.js b/node_modules/amqp-connection-manager/dist/cjs/index.js
+index 419f69d..da57764 100644
+--- a/node_modules/amqp-connection-manager/dist/cjs/index.js
++++ b/node_modules/amqp-connection-manager/dist/cjs/index.js
+@@ -10,7 +10,7 @@ const AmqpConnectionManager_js_1 = __importDefault(require("./AmqpConnectionMana
+ exports.AmqpConnectionManagerClass = AmqpConnectionManager_js_1.default;
+ function connect(urls, options) {
+     const conn = new AmqpConnectionManager_js_1.default(urls, options);
+-    conn.connect().catch(() => {
++    conn.connect({ timeout: 5000 }).catch(() => {
+         /* noop */
+     });
+     return conn;
