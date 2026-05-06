@@ -11,6 +11,7 @@ const sdk = new NodeSDK({
   }),
   traceExporter: new OTLPTraceExporter({
     url: `${process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? 'http://jaeger:4318'}/v1/traces`,
+    timeoutMillis: 5000, // 5 second timeout instead of default 10
   }),
   instrumentations: [
     getNodeAutoInstrumentations({
@@ -21,7 +22,12 @@ const sdk = new NodeSDK({
   ],
 });
 
-sdk.start();
+try {
+  sdk.start();
+} catch (err) {
+  // Don't let OTEL startup failures block the app bootstrap
+  console.warn('OpenTelemetry SDK startup failed:', err instanceof Error ? err.message : err);
+}
 
 process.on('SIGTERM', () => {
   sdk.shutdown().finally(() => process.exit(0));
