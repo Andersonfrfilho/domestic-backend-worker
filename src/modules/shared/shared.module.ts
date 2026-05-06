@@ -5,8 +5,17 @@ import { WorkerRabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { EmailModule } from './email/email.module';
 import { FirebaseModule } from './firebase/firebase.module';
 
+const moduleImports = [SharedProviderModule, EmailModule, FirebaseModule];
+const moduleExports = [SharedProviderModule, EmailModule, FirebaseModule];
+
+// Only import RabbitMQModule if not explicitly disabled
+if (process.env.DISABLE_RABBITMQ !== 'true') {
+  moduleImports.push(WorkerRabbitMQModule);
+  moduleExports.push(WorkerRabbitMQModule);
+}
+
 @Module({
-  imports: [SharedProviderModule, WorkerRabbitMQModule, EmailModule, FirebaseModule],
-  exports: [SharedProviderModule, WorkerRabbitMQModule, EmailModule, FirebaseModule],
+  imports: moduleImports,
+  exports: moduleExports,
 })
 export class SharedModule {}
