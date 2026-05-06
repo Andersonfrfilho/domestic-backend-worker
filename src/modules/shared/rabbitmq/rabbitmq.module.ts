@@ -10,10 +10,11 @@ const logger = new Logger('RabbitMQModule');
       useFactory: () => {
         logger.log('Initializing RabbitMQ connection...');
         return {
-          uri:
+              uri:
             process.env.RABBITMQ_URL ||
             `amqp://${process.env.QUEUE_RABBITMQ_USER || 'guest'}:${process.env.QUEUE_RABBITMQ_PASS || 'guest'}@${process.env.QUEUE_RABBITMQ_HOST || 'localhost'}:${process.env.QUEUE_RABBITMQ_PORT || '5672'}`,
-                        connectionInitOptions: { wait: false },
+          connectionInitOptions: { wait: false },
+          connectionManagerOptions: { reconnectTimeInSeconds: 1 },
           prefetchCount: Number(process.env.RABBITMQ_PREFETCH ?? 10),
         };
       },
