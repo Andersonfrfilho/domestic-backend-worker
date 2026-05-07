@@ -8,30 +8,42 @@ export class RabbitBindingsService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      console.log('🔗 Setting up RabbitMQ bindings...');
+      console.log('🔗 Setting up RabbitMQ bindings on module init...');
 
-      // Wait for channel to be available
-      let retries = 0;
-      while (!this.amqpConnection.managedChannel && retries < 30) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        retries++;
-      }
-
-      if (!this.amqpConnection.managedChannel) {
-        console.warn('⚠️ RabbitMQ channel not available after 30 seconds');
-        return;
-      }
-
-      // Register setup callback to create bindings on connection
-      await this.amqpConnection.managedChannel.addSetup(async (channel: ConfirmChannel) => {
-        console.log('✅ Channel ready, creating bindings...');
-        await this.createBindings(channel);
-        console.log('✅ RabbitMQ bindings created successfully');
-      });
+      // Schedule binding setup with retry strategy
+      // Since wait: false, channel may not be ready immediately
+      this.setupBindingsWithRetry();
     } catch (error) {
       console.error('❌ Error setting up RabbitMQ bindings:', error);
-      // Don't throw, allow app to continue
     }
+  }
+
+  private setupBindingsWithRetry() {
+    let retries = 0;
+    const maxRetries = 60; // 60 seconds with 1s interval
+    const interval = setInterval(async () => {
+      try {
+        const channel = this.amqpConnection.managedChannel;
+        if (channel) {
+          clearInterval(interval);
+          await channel.addSetup(async (ch: ConfirmChannel) => {
+            console.log('✅ Channel ready, creating bindings...');
+            await this.createBindings(ch);
+            console.log('✅ RabbitMQ bindings created successfully');
+          });
+          return;
+        }
+
+        retries++;
+        if (retries > maxRetries) {
+          clearInterval(interval);
+          console.warn('⚠️ RabbitMQ channel not available after 60 seconds, bindings skipped');
+        }
+      } catch (error) {
+        console.error('❌ Error in binding setup retry:', error);
+        clearInterval(interval);
+      }
+    }, 1000);
   }
 
   private async createBindings(channel: ConfirmChannel) {
