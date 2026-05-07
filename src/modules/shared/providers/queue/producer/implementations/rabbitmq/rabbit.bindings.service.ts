@@ -14,9 +14,18 @@ export class RabbitBindingsService implements OnModuleInit {
       const conn = this.amqpConnection.managedConnection;
       if (conn) {
         conn.on('connect', () => console.log('[RMQ-EVENT] ✅ managedConnection CONNECT'));
-        conn.on('disconnect', (params: any) => console.log('[RMQ-EVENT] ❌ managedConnection DISCONNECT', params?.err?.message || params?.err));
-        conn.on('connectFailed', (err: any) => console.log('[RMQ-EVENT] ⚠️ managedConnection CONNECT_FAILED', err?.message || err));
-        conn.on('blocked', (reason: any) => console.log('[RMQ-EVENT] 🔒 managedConnection BLOCKED', reason));
+        conn.on('disconnect', (params: any) =>
+          console.log(
+            '[RMQ-EVENT] ❌ managedConnection DISCONNECT',
+            params?.err?.message || params?.err,
+          ),
+        );
+        conn.on('connectFailed', (err: any) =>
+          console.log('[RMQ-EVENT] ⚠️ managedConnection CONNECT_FAILED', err?.message || err),
+        );
+        conn.on('blocked', (reason: any) =>
+          console.log('[RMQ-EVENT] 🔒 managedConnection BLOCKED', reason),
+        );
         conn.on('unblocked', () => console.log('[RMQ-EVENT] 🔓 managedConnection UNBLOCKED'));
       }
 
@@ -30,7 +39,7 @@ export class RabbitBindingsService implements OnModuleInit {
   private setupBindingsWithRetry() {
     let retries = 0;
     const maxRetries = 60;
-    const interval = setInterval(async () => {
+    const interval = setInterval(() => {
       try {
         const channel = this.amqpConnection.managedChannel;
         if (channel) {
@@ -38,16 +47,12 @@ export class RabbitBindingsService implements OnModuleInit {
           console.log('🔧 managedChannel available, registering addSetup...');
 
           // The critical part: addSetup with robust error handling
-          await channel.addSetup(async (ch: ConfirmChannel) => {
-            try {
-              console.log('🚀 addSetup callback executing - Creating bindings...');
-              await this.createBindings(ch);
-              console.log('✅ RabbitMQ bindings created successfully');
-            } catch (setupError) {
+          channel.addSetup((ch: ConfirmChannel): void => {
+            console.log('🚀 addSetup callback registered - Creating bindings asynchronously...');
+            // Fire and forget with error logging
+            this.createBindings(ch).catch((setupError) => {
               console.error('❌ CRITICAL: Error in addSetup callback:', setupError);
-              // Re-throw so amqp-connection-manager knows setup failed
-              throw setupError;
-            }
+            });
           });
           console.log('✅ addSetup registered successfully');
           return;
@@ -71,11 +76,27 @@ export class RabbitBindingsService implements OnModuleInit {
 
   private async createBindings(channel: ConfirmChannel) {
     const bindings = [
-      { queue: 'worker.provider.approval', exchange: 'zolve.events', routingKey: 'provider.approved' },
-      { queue: 'worker.provider.approval', exchange: 'zolve.events', routingKey: 'provider.rejected' },
+      {
+        queue: 'worker.provider.approval',
+        exchange: 'zolve.events',
+        routingKey: 'provider.approved',
+      },
+      {
+        queue: 'worker.provider.approval',
+        exchange: 'zolve.events',
+        routingKey: 'provider.rejected',
+      },
       { queue: 'worker.rating', exchange: 'zolve.events', routingKey: 'review.created' },
-      { queue: 'worker.service-requests', exchange: 'zolve.events', routingKey: 'service_request.*' },
-      { queue: 'worker.notifications', exchange: 'zolve.events', routingKey: 'notifications.email' },
+      {
+        queue: 'worker.service-requests',
+        exchange: 'zolve.events',
+        routingKey: 'service_request.*',
+      },
+      {
+        queue: 'worker.notifications',
+        exchange: 'zolve.events',
+        routingKey: 'notifications.email',
+      },
       { queue: 'worker.notifications', exchange: 'zolve.events', routingKey: 'notifications.push' },
       { queue: 'worker.dlq', exchange: 'zolve.dlx', routingKey: '' },
     ];
