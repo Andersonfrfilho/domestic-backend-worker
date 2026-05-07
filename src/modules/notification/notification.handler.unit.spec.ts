@@ -45,7 +45,11 @@ describe('NotificationHandler', () => {
     await handler.persist(event);
 
     expect(mockRepo.create).toHaveBeenCalledWith(
-      expect.objectContaining({ userId: 'user-1', message: 'Sua solicitação foi aceita', read: false }),
+      expect.objectContaining({
+        userId: 'user-1',
+        message: 'Sua solicitação foi aceita',
+        read: false,
+      }),
     );
     expect(mockRepo.save).toHaveBeenCalled();
     expect(mockLogger.info).toHaveBeenCalledTimes(2);

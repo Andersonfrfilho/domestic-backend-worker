@@ -49,9 +49,7 @@ describe('RabbitMQ Connectivity (E2E)', () => {
       'worker.dlq',
     ];
     for (const queue of queues) {
-      await expect(
-        ch.assertQueue(queue, { durable: true }),
-      ).resolves.toBeDefined();
+      await expect(ch.assertQueue(queue, { durable: true })).resolves.toBeDefined();
     }
   });
 });

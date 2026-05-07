@@ -22,7 +22,12 @@ const mockNotification = { persist: jest.fn().mockResolvedValue(undefined) };
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 const verification = { id: 'verif-1', providerId: 'prov-1', status: 'UNDER_REVIEW' };
-const event = { provider_id: 'prov-1', user_id: 'user-1', email: 'p@test.com', fcm_token: 'fcm-token' };
+const event = {
+  provider_id: 'prov-1',
+  user_id: 'user-1',
+  email: 'p@test.com',
+  fcm_token: 'fcm-token',
+};
 
 describe('ProviderApprovalHandler', () => {
   let handler: ProviderApprovalHandler;
@@ -31,8 +36,14 @@ describe('ProviderApprovalHandler', () => {
     const module = await Test.createTestingModule({
       providers: [
         ProviderApprovalHandler,
-        { provide: getRepositoryToken(ProviderVerification, CONNECTIONS_NAMES.POSTGRES), useValue: mockVerificationRepo },
-        { provide: getRepositoryToken(ProviderVerificationLog, CONNECTIONS_NAMES.POSTGRES), useValue: mockLogRepo },
+        {
+          provide: getRepositoryToken(ProviderVerification, CONNECTIONS_NAMES.POSTGRES),
+          useValue: mockVerificationRepo,
+        },
+        {
+          provide: getRepositoryToken(ProviderVerificationLog, CONNECTIONS_NAMES.POSTGRES),
+          useValue: mockLogRepo,
+        },
         { provide: AmqpConnection, useValue: mockAmqp },
         { provide: NotificationHandler, useValue: mockNotification },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
@@ -54,9 +65,16 @@ describe('ProviderApprovalHandler', () => {
 
       await handler.handleApproved(event);
 
-      expect(mockVerificationRepo.update).toHaveBeenCalledWith('verif-1', expect.objectContaining({ status: 'APPROVED' }));
+      expect(mockVerificationRepo.update).toHaveBeenCalledWith(
+        'verif-1',
+        expect.objectContaining({ status: 'APPROVED' }),
+      );
       expect(mockNotification.persist).toHaveBeenCalled();
-      expect(mockAmqp.publish).toHaveBeenCalledWith('zolve.events', 'notifications.email', expect.any(Object));
+      expect(mockAmqp.publish).toHaveBeenCalledWith(
+        'zolve.events',
+        'notifications.email',
+        expect.any(Object),
+      );
     });
 
     it('is idempotent — skips if already APPROVED', async () => {
@@ -84,7 +102,10 @@ describe('ProviderApprovalHandler', () => {
 
       await handler.handleRejected(rejectedEvent);
 
-      expect(mockVerificationRepo.update).toHaveBeenCalledWith('verif-1', expect.objectContaining({ status: 'REJECTED' }));
+      expect(mockVerificationRepo.update).toHaveBeenCalledWith(
+        'verif-1',
+        expect.objectContaining({ status: 'REJECTED' }),
+      );
       expect(mockNotification.persist).toHaveBeenCalled();
     });
   });

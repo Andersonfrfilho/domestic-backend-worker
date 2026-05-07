@@ -11,7 +11,12 @@ const mockHandler = {
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
 
 const approvedPayload = { provider_id: 'prov-1', user_id: 'user-1', email: 'p@test.com' };
-const rejectedPayload = { provider_id: 'prov-2', user_id: 'user-2', email: 'p2@test.com', reason: 'Docs incompletos' };
+const rejectedPayload = {
+  provider_id: 'prov-2',
+  user_id: 'user-2',
+  email: 'p2@test.com',
+  reason: 'Docs incompletos',
+};
 
 describe('ProviderApprovalConsumer', () => {
   let consumer: ProviderApprovalConsumer;

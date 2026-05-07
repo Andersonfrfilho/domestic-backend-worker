@@ -24,7 +24,10 @@ describe('RatingHandler', () => {
     const module = await Test.createTestingModule({
       providers: [
         RatingHandler,
-        { provide: getRepositoryToken(ProviderProfile, CONNECTIONS_NAMES.POSTGRES), useValue: mockRepo },
+        {
+          provide: getRepositoryToken(ProviderProfile, CONNECTIONS_NAMES.POSTGRES),
+          useValue: mockRepo,
+        },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
       ],
     }).compile();
