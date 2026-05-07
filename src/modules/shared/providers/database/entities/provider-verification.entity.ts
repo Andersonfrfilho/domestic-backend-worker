@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 import { ProviderProfile } from './provider-profile.entity';
 
@@ -19,7 +28,12 @@ export class ProviderVerification {
   @Column({ name: 'reviewed_at', type: 'timestamp', nullable: true })
   reviewedAt: Date;
 
-  @Column({ name: 'reviewed_by', type: 'uuid', nullable: true, comment: 'ID do admin (Keycloak ou interno)' })
+  @Column({
+    name: 'reviewed_by',
+    type: 'uuid',
+    nullable: true,
+    comment: 'ID do admin (Keycloak ou interno)',
+  })
   reviewedBy: string;
 
   @Column({ type: 'text', nullable: true })

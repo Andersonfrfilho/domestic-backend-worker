@@ -18,7 +18,7 @@ async function bootstrap() {
       { bufferLogs: false },
     );
     const createTimeoutPromise = new Promise<NestFastifyApplication>((_, reject) =>
-      setTimeout(() => reject(new Error('NestFactory.create() timeout after 60 seconds')), 60000)
+      setTimeout(() => reject(new Error('NestFactory.create() timeout after 60 seconds')), 60000),
     );
     app = await Promise.race([createPromise, createTimeoutPromise]);
     console.log('Application created successfully');
@@ -45,7 +45,7 @@ async function bootstrap() {
   console.log(`Starting to listen on port ${port}...`);
   const listenPromise = app.listen(port, '0.0.0.0');
   const timeoutPromise = new Promise<void>((_, reject) =>
-    setTimeout(() => reject(new Error('App.listen() timeout after 300 seconds')), 300000)
+    setTimeout(() => reject(new Error('App.listen() timeout after 300 seconds')), 300000),
   );
 
   await Promise.race([listenPromise, timeoutPromise]);
@@ -63,9 +63,10 @@ bootstrap().catch((err) => {
 });
 
 // Graceful shutdown on SIGTERM
-process.on('SIGTERM', async () => {
+process.on('SIGTERM', () => {
   console.log('📍 SIGTERM received, initiating graceful shutdown...');
-  await new Promise(r => setTimeout(r, 5000));
-  console.log('🛑 Shutting down');
-  process.exit(0);
+  setTimeout(() => {
+    console.log('🛑 Shutting down');
+    process.exit(0);
+  }, 5000);
 });

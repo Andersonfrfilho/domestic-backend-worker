@@ -1,11 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
-import { EmailHandler } from './email.handler';
 import type { EmailEvent } from './dtos/email.event.dto';
+import { EmailHandler } from './email.handler';
 
 @Injectable()
 export class EmailConsumer {
@@ -20,7 +20,6 @@ export class EmailConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.email',
     queue: 'worker.notifications',
-    
   })
   async onEmailEvent(payload: EmailEvent): Promise<void> {
     this.logger.info({

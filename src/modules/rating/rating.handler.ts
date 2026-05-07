@@ -1,11 +1,11 @@
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
-import { ProviderProfile } from '@modules/shared/providers/database/entities/provider-profile.entity';
-import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
+import { ProviderProfile } from '@modules/shared/providers/database/entities/provider-profile.entity';
 
 import type { ReviewCreatedEvent } from './dtos/review-created.event.dto';
 
@@ -20,7 +20,11 @@ export class RatingHandler {
   ) {}
 
   async handle(event: ReviewCreatedEvent): Promise<void> {
-    this.logger.info({ message: 'Recalculating average_rating', context: this.logContext, params: { provider_id: event.provider_id, review_id: event.review_id } });
+    this.logger.info({
+      message: 'Recalculating average_rating',
+      context: this.logContext,
+      params: { provider_id: event.provider_id, review_id: event.review_id },
+    });
 
     await this.providerRepo
       .createQueryBuilder()
@@ -32,6 +36,10 @@ export class RatingHandler {
       .where('id = :id', { id: event.provider_id })
       .execute();
 
-    this.logger.info({ message: 'average_rating updated successfully', context: this.logContext, params: { provider_id: event.provider_id } });
+    this.logger.info({
+      message: 'average_rating updated successfully',
+      context: this.logContext,
+      params: { provider_id: event.provider_id },
+    });
   }
 }

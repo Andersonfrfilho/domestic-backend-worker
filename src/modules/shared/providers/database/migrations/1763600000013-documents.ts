@@ -36,9 +36,7 @@ export default class Documents1763600000013 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('documents');
-    const foreignKey = table?.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('user_id') !== -1,
-    );
+    const foreignKey = table?.foreignKeys.find((fk) => fk.columnNames.indexOf('user_id') !== -1);
     if (foreignKey) {
       await queryRunner.dropForeignKey('documents', foreignKey);
     }

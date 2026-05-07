@@ -1,11 +1,11 @@
+import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
-import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
-import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
+import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
 
 import type { NotificationPersistEvent } from './dtos/notification-persist.event.dto';
 
@@ -20,7 +20,11 @@ export class NotificationHandler {
   ) {}
 
   async persist(event: NotificationPersistEvent): Promise<void> {
-    this.logger.info({ message: 'Persisting in-app notification', context: this.logContext, params: { user_id: event.user_id, event_type: event.metadata.event_type } });
+    this.logger.info({
+      message: 'Persisting in-app notification',
+      context: this.logContext,
+      params: { user_id: event.user_id, event_type: event.metadata.event_type },
+    });
 
     const notification = this.notificationRepo.create({
       userId: event.user_id,
@@ -30,6 +34,10 @@ export class NotificationHandler {
     } as any);
 
     await this.notificationRepo.save(notification);
-    this.logger.info({ message: 'Notification persisted successfully', context: this.logContext, params: { user_id: event.user_id } });
+    this.logger.info({
+      message: 'Notification persisted successfully',
+      context: this.logContext,
+      params: { user_id: event.user_id },
+    });
   }
 }

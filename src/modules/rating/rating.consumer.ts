@@ -1,11 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
-import { RatingHandler } from './rating.handler';
 import type { ReviewCreatedEvent } from './dtos/review-created.event.dto';
+import { RatingHandler } from './rating.handler';
 
 @Injectable()
 export class RatingConsumer {
@@ -20,15 +20,26 @@ export class RatingConsumer {
     exchange: 'zolve.events',
     routingKey: 'review.created',
     queue: 'worker.rating',
-    
   })
   async onReviewCreated(payload: ReviewCreatedEvent): Promise<void> {
-    this.logger.info({ message: '[review.created] Received', context: this.logContext, params: { provider_id: payload.provider_id } });
+    this.logger.info({
+      message: '[review.created] Received',
+      context: this.logContext,
+      params: { provider_id: payload.provider_id },
+    });
     try {
       await this.handler.handle(payload);
-      this.logger.info({ message: '[review.created] Done', context: this.logContext, params: { provider_id: payload.provider_id } });
+      this.logger.info({
+        message: '[review.created] Done',
+        context: this.logContext,
+        params: { provider_id: payload.provider_id },
+      });
     } catch (error) {
-      this.logger.error({ message: '[review.created] Failed — will NACK', context: this.logContext, params: { provider_id: payload.provider_id, error: error?.message } });
+      this.logger.error({
+        message: '[review.created] Failed — will NACK',
+        context: this.logContext,
+        params: { provider_id: payload.provider_id, error: error?.message },
+      });
       throw error;
     }
   }

@@ -1,11 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
-import { PushHandler } from './push.handler';
 import type { PushEvent } from './dtos/push.event.dto';
+import { PushHandler } from './push.handler';
 
 @Injectable()
 export class PushConsumer {
@@ -20,7 +20,6 @@ export class PushConsumer {
     exchange: 'zolve.events',
     routingKey: 'notifications.push',
     queue: 'worker.notifications',
-    
   })
   async onPushEvent(payload: PushEvent): Promise<void> {
     this.logger.info({

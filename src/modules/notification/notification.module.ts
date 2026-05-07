@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
+import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
 
 import { NotificationHandler } from './notification.handler';
 

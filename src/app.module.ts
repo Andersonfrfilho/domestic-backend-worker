@@ -1,19 +1,18 @@
+import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
 import { LoggerModule, RequestContextMiddleware } from '@adatechnology/logger';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { ConfigModule } from '@config/config.module';
 import { HealthModule } from '@modules/health/health.module';
 
+import { EmailModule } from './modules/email/email.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
-import { SharedModule } from './modules/shared/shared.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ProviderApprovalModule } from './modules/provider-approval/provider-approval.module';
+import { PushModule } from './modules/push/push.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { ServiceRequestWorkerModule } from './modules/service-request-worker/service-request.module';
-import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
-
-import { EmailModule } from './modules/email/email.module';
-import { PushModule } from './modules/push/push.module';
+import { SharedModule } from './modules/shared/shared.module';
 import { UserVerificationModule } from './modules/user-verification/user-verification.module';
 
 const workerModules = [

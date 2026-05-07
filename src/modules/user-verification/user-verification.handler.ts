@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
 import {
   KEYCLOAK_ADMIN_CLIENT,
   type KeycloakAdminClientInterface,
 } from '@adatechnology/keycloak-admin';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 

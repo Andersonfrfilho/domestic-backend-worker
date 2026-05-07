@@ -1,5 +1,15 @@
 import { Observable } from 'rxjs';
-import type { QueueProducerMessageProviderInterface, ProducerConfig, ProducerHealth, BaseMessage, SendResult, BatchSendResult, MessagePriority, QoSLevel } from '../../producer.interface';
+
+import type {
+  QueueProducerMessageProviderInterface,
+  ProducerConfig,
+  ProducerHealth,
+  BaseMessage,
+  SendResult,
+  BatchSendResult,
+  MessagePriority,
+  QoSLevel,
+} from '../../producer.interface';
 
 export class NoopMessageProducer implements QueueProducerMessageProviderInterface {
   getId(): string {

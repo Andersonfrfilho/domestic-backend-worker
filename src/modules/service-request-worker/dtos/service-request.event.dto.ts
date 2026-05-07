@@ -1,4 +1,9 @@
-export type ServiceRequestEventType = 'created' | 'accepted' | 'rejected' | 'completed' | 'cancelled';
+export type ServiceRequestEventType =
+  | 'created'
+  | 'accepted'
+  | 'rejected'
+  | 'completed'
+  | 'cancelled';
 
 export interface ServiceRequestEvent {
   event_type: ServiceRequestEventType;

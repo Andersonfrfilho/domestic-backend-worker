@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 
-import { FIREBASE_PROVIDER } from './firebase.token';
 import { FirebaseAdminProvider } from './firebase-admin.provider';
+import { FIREBASE_PROVIDER } from './firebase.token';
 
 @Module({
   providers: [{ provide: FIREBASE_PROVIDER, useClass: FirebaseAdminProvider }],

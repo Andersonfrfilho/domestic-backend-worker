@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
+import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
@@ -20,7 +20,6 @@ export class UserVerificationConsumer {
     exchange: 'zolve.events',
     routingKey: 'user.email.verified',
     queue: 'worker.user.verification',
-    
   })
   async onUserEmailVerified(payload: UserEmailVerifiedEvent): Promise<void> {
     this.logger.info({

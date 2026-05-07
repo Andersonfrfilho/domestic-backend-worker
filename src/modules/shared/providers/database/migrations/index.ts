@@ -53,5 +53,3 @@ export const migrations = [
   UpdateAddresses1763600000019,
   AddIsActiveToCategories1763600000020,
 ];
-
-

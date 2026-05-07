@@ -40,9 +40,7 @@ export default class ProviderProfiles1763600000004 implements MigrationInterface
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     const table = await queryRunner.getTable('provider_profiles');
-    const foreignKey = table?.foreignKeys.find(
-      (fk) => fk.columnNames.indexOf('user_id') !== -1,
-    );
+    const foreignKey = table?.foreignKeys.find((fk) => fk.columnNames.indexOf('user_id') !== -1);
     if (foreignKey) {
       await queryRunner.dropForeignKey('provider_profiles', foreignKey);
     }
