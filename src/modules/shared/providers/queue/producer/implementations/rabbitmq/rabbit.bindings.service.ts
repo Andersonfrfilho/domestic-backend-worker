@@ -8,16 +8,28 @@ export class RabbitBindingsService implements OnModuleInit {
 
   async onModuleInit() {
     try {
-      console.log('🔗 Setting up RabbitMQ bindings with waitForConnect...');
+      console.log('🔗 Setting up RabbitMQ bindings...');
 
-      // Use waitForConnect to ensure channel is ready
-      await this.amqpConnection.managedChannel.waitForConnect(async (channel: ConfirmChannel) => {
+      // Wait for channel to be available
+      let retries = 0;
+      while (!this.amqpConnection.managedChannel && retries < 30) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        retries++;
+      }
+
+      if (!this.amqpConnection.managedChannel) {
+        console.warn('⚠️ RabbitMQ channel not available after 30 seconds');
+        return;
+      }
+
+      // Register setup callback to create bindings on connection
+      await this.amqpConnection.managedChannel.addSetup(async (channel: ConfirmChannel) => {
         console.log('✅ Channel ready, creating bindings...');
         await this.createBindings(channel);
         console.log('✅ RabbitMQ bindings created successfully');
       });
     } catch (error) {
-      console.error('❌ Error creating RabbitMQ bindings:', error);
+      console.error('❌ Error setting up RabbitMQ bindings:', error);
       // Don't throw, allow app to continue
     }
   }
