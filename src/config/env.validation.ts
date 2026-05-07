@@ -59,7 +59,11 @@ export default Joi.object({
   // ============================================
   // RabbitMQ
   // ============================================
-  RABBITMQ_URL: Joi.string().default('amqp://guest:guest@localhost:5672'),
+  RABBITMQ_URL: Joi.string().optional(),
+  QUEUE_RABBITMQ_USER: Joi.string().optional(),
+  QUEUE_RABBITMQ_PASS: Joi.string().optional(),
+  QUEUE_RABBITMQ_HOST: Joi.string().optional(),
+  QUEUE_RABBITMQ_PORT: Joi.number().optional(),
   RABBITMQ_EXCHANGE: Joi.string().default('zolve.events'),
   RABBITMQ_PREFETCH: Joi.number().default(10),
 
