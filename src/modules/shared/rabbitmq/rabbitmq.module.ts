@@ -19,6 +19,9 @@ const logger = new Logger('RabbitMQModule');
           connectionInitOptions: { wait: false, reject: false, timeout: 30000 },
           connectionManagerOptions: { heartbeatIntervalInSeconds: 30, reconnectTimeInSeconds: 5 },
           prefetchCount: Number(process.env.RABBITMQ_PREFETCH ?? 10),
+          logger: (msg: string, ...args: any[]) => {
+            console.log(`[RMQ-DEBUG] ${msg}`, ...args);
+          },
         };
       },
     }),

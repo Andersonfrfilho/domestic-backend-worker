@@ -6,6 +6,15 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 
 import { AppModule } from './app.module';
 
+// Global error handlers for debugging RabbitMQ issues
+process.on('uncaughtException', (err) => {
+  console.error('[UNCAUGHT_EXCEPTION]', err);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('[UNHANDLED_REJECTION]', err);
+});
+
 async function bootstrap() {
   console.log('Starting bootstrap...');
 
