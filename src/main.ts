@@ -36,6 +36,9 @@ async function bootstrap() {
     }),
   );
 
+  // Enable graceful shutdown hooks
+  app.enableShutdownHooks();
+
   const port = process.env.PORT ?? 3002;
 
   // Start listening with a timeout to prevent hanging
@@ -46,10 +49,23 @@ async function bootstrap() {
   );
 
   await Promise.race([listenPromise, timeoutPromise]);
-  console.log(`Worker running on port ${port}`);
+  console.log('🟢 WORKER STARTED');
+
+  // Keep process alive (safety check for event loop)
+  setInterval(() => {
+    console.log('✅ Worker alive');
+  }, 30000);
 }
 
 bootstrap().catch((err) => {
   console.error('Fatal bootstrap error:', err);
   process.exit(1);
+});
+
+// Graceful shutdown on SIGTERM
+process.on('SIGTERM', async () => {
+  console.log('📍 SIGTERM received, initiating graceful shutdown...');
+  await new Promise(r => setTimeout(r, 5000));
+  console.log('🛑 Shutting down');
+  process.exit(0);
 });

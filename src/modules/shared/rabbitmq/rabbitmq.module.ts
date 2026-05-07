@@ -15,8 +15,9 @@ const logger = new Logger('RabbitMQModule');
 
         return {
           uri,
-          connectionInitOptions: { wait: false },
-          connectionManagerOptions: { heartbeatIntervalInSeconds: 60, reconnectTimeInSeconds: 2 },
+          enableControllerDiscovery: true,
+          connectionInitOptions: { wait: false, reject: false, timeout: 30000 },
+          connectionManagerOptions: { heartbeatIntervalInSeconds: 30, reconnectTimeInSeconds: 5 },
           prefetchCount: Number(process.env.RABBITMQ_PREFETCH ?? 10),
         };
       },
