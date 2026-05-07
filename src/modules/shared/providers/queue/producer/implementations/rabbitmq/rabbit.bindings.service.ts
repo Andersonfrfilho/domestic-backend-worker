@@ -101,6 +101,20 @@ export class RabbitBindingsService implements OnModuleInit {
       { queue: 'worker.dlq', exchange: 'zolve.dlx', routingKey: '' },
     ];
 
+    // First, ensure all queues exist
+    const queueNames = new Set(bindings.map((b) => b.queue));
+    for (const queueName of queueNames) {
+      try {
+        const queueOptions = queueName === 'worker.dlq' ? { deadLetterExchange: 'zolve.dlx' } : {};
+        console.log(`  Creating queue: ${queueName}`);
+        await channel.assertQueue(queueName, queueOptions);
+      } catch (error) {
+        console.error(`  ❌ Failed to create queue ${queueName}:`, error);
+        throw error;
+      }
+    }
+
+    // Then, bind queues to exchanges
     for (const binding of bindings) {
       try {
         console.log(`  Binding: ${binding.queue} <- ${binding.exchange}::${binding.routingKey}`);
@@ -110,5 +124,7 @@ export class RabbitBindingsService implements OnModuleInit {
         throw error;
       }
     }
+
+    console.log('✅ All queues and bindings created successfully');
   }
 }
