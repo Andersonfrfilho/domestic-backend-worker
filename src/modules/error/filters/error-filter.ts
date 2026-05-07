@@ -56,19 +56,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return requestIdFromRequest;
     }
 
-    // 2. Try to get from requestContext (fallback) - loaded at runtime from logger lib if available
-    try {
-      // Dynamic import to avoid compile-time errors if the logger lib doesn't export requestContext
-      const loggerLib = await import('@adatechnology/logger');
-      const contextStore = (loggerLib as any).requestContext?.getStore?.();
-      if (contextStore?.requestId) {
-        return contextStore.requestId;
-      }
-    } catch {
-      // ignore if import fails
-    }
-
-    // 3. Try to get from x-request-id header (last resort)
+    // 2. Try to get from x-request-id header (fallback)
     const rawRequestId = request.headers['x-request-id'];
     return (Array.isArray(rawRequestId) ? rawRequestId[0] : rawRequestId) ?? '';
   }
