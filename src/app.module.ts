@@ -6,6 +6,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@config/config.module';
 import { HealthModule } from '@modules/health/health.module';
 
+import { BlockReminderModule } from './modules/block-reminder/block-reminder.module';
 import { EmailModule } from './modules/email/email.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { NotificationModule } from './modules/notification/notification.module';
@@ -26,6 +27,7 @@ const workerModules = [
   SharedModule,
   HttpModule.forRoot({}),
   HealthModule,
+  BlockReminderModule,
   KeycloakAdminModule.forRoot({
     baseUrl: process.env.KEYCLOAK_BASE_URL || 'http://localhost:8081',
     realm: process.env.KEYCLOAK_REALM || 'BACKEND',
