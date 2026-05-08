@@ -14,6 +14,7 @@ import type { EmailEvent } from './dtos/email.event.dto';
 const SUBJECTS: Record<string, string> = {
   welcome: 'Bem-vindo à ZOLVE!',
   'verify-email': 'Confirme seu e-mail',
+  verification_code: 'Confirme seu e-mail — código de verificação',
   'verification-approved': 'Parabéns! Seu perfil foi verificado',
   'verification-rejected': 'Ação necessária no seu cadastro',
   'service-request-received': 'Nova solicitação de serviço',
@@ -52,7 +53,8 @@ export class EmailHandler {
       return;
     }
 
-    const html = this.renderTemplate(event.template_id, event.variables);
+    const variables = event.variables ?? (event as any).params ?? {};
+    const html = this.renderTemplate(event.template_id, variables);
     await this.emailProvider.send({ to: event.to, subject, html });
     this.logger.info({
       message: 'Email sent successfully',
