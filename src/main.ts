@@ -41,21 +41,11 @@ async function bootstrap() {
     }),
   );
 
-  app.enableShutdownHooks();
-
   const port = process.env.PORT ?? 3002;
 
-  const listenPromise = app.listen(port, '0.0.0.0');
-  const timeoutPromise = new Promise<void>((_, reject) =>
-    setTimeout(() => reject(new Error('App.listen() timeout after 300 seconds')), 300000),
-  );
+  app.enableShutdownHooks();
 
-  await Promise.race([listenPromise, timeoutPromise]);
-
-  // Keep process alive (safety check for event loop)
-  setInterval(() => {
-    // Silent heartbeat
-  }, 30000);
+  await app.listen(port, '0.0.0.0');
 }
 
 bootstrap().catch((err) => {
