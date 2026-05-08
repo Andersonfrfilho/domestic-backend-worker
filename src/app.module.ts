@@ -1,3 +1,4 @@
+import { HttpModule } from '@adatechnology/http-client';
 import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
 import { LoggerModule, RequestContextMiddleware } from '@adatechnology/logger';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -23,6 +24,7 @@ const workerModules = [
     interceptorExcludedPaths: ['/health', '/metrics'],
   }),
   SharedModule,
+  HttpModule.forRoot({}),
   HealthModule,
   KeycloakAdminModule.forRoot({
     baseUrl: process.env.KEYCLOAK_BASE_URL || 'http://localhost:8081',
