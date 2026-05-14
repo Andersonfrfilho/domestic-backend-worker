@@ -3,14 +3,22 @@ import { Global, Logger, Module } from '@nestjs/common';
 
 const logger = new Logger('RabbitMQModule');
 
+function maskPassword(uri: string): string {
+  return uri.replace(/\/\/([^:]+):([^@]+)@/, '//$1:****@');
+}
+
 @Global()
 @Module({
   imports: [
     RabbitMQModule.forRootAsync({
       useFactory: () => {
-        const uri =
+        const rawUri =
           process.env.RABBITMQ_URL ||
           `amqp://${process.env.QUEUE_RABBITMQ_USER || 'guest'}:${process.env.QUEUE_RABBITMQ_PASS || 'guest'}@${process.env.QUEUE_RABBITMQ_HOST || 'localhost'}:${process.env.QUEUE_RABBITMQ_PORT || '5672'}/`;
+
+        const uri = rawUri.endsWith('/') ? rawUri : rawUri + '/';
+
+        logger.log(`Connecting to RabbitMQ at ${maskPassword(uri)}`);
 
         if (uri.includes('guest') || uri.includes('localhost')) {
           logger.warn(
