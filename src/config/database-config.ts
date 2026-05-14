@@ -6,6 +6,11 @@ import envValidationSchema from './env.validation';
 import { DatabaseConfigs } from './types';
 
 export function getDatabaseConfig(): DatabaseConfigs {
+  console.error('🔍 DATABASE CONFIG DEBUG:');
+  console.error('  process.env.DATABASE_POSTGRES_USER:', process.env.DATABASE_POSTGRES_USER);
+  console.error('  process.env.DATABASE_POSTGRES_PASSWORD length:', process.env.DATABASE_POSTGRES_PASSWORD?.length);
+  console.error('  process.env.DATABASE_POSTGRES_HOST:', process.env.DATABASE_POSTGRES_HOST);
+
   const { error, value } = envValidationSchema.validate(process.env, {
     abortEarly: false,
     allowUnknown: true,
@@ -79,6 +84,13 @@ export function getDatabaseConfig(): DatabaseConfigs {
       },
     };
   }
+
+  console.error('🔍 RETURNING CONFIG:');
+  console.error('  postgres.username:', DATABASE_POSTGRES_USER);
+  console.error('  postgres.password length:', DATABASE_POSTGRES_PASSWORD?.length);
+  console.error('  postgres.host:', DATABASE_POSTGRES_HOST);
+  console.error('  postgres.port:', DATABASE_POSTGRES_PORT);
+  console.error('  postgres.database:', DATABASE_POSTGRES_NAME);
 
   return {
     postgres: {
