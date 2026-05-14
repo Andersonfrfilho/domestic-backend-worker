@@ -26,6 +26,11 @@ import { getDatabaseConfig } from '@config/database-config';
 import { migrations } from '../../migrations/index';
 
 const config = getDatabaseConfig();
+console.error('🔍 POSTGRES DataSource Config:');
+console.error('  username:', config.postgres.username);
+console.error('  password length:', config.postgres.password?.length);
+console.error('  host:', config.postgres.host);
+console.error('  port:', config.postgres.port);
 const PostgresDataSource = new DataSource({
   type: 'postgres',
   host: config.postgres.host,
