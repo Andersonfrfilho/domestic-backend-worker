@@ -1,15 +1,19 @@
 import 'dotenv/config';
 
+import { Logger } from '@nestjs/common';
 import { ConfigErrorFactory } from '@modules/error/factories';
 
 import envValidationSchema from './env.validation';
 import { DatabaseConfigs } from './types';
 
+const logger = new Logger('DatabaseConfig');
+
 export function getDatabaseConfig(): DatabaseConfigs {
-  console.error('🔍 DATABASE CONFIG DEBUG:');
-  console.error('  process.env.DATABASE_POSTGRES_USER:', process.env.DATABASE_POSTGRES_USER);
-  console.error('  process.env.DATABASE_POSTGRES_PASSWORD length:', process.env.DATABASE_POSTGRES_PASSWORD?.length);
-  console.error('  process.env.DATABASE_POSTGRES_HOST:', process.env.DATABASE_POSTGRES_HOST);
+  logger.error('🔍 DATABASE CONFIG INIT');
+  logger.error(`  USER: ${process.env.DATABASE_POSTGRES_USER}`);
+  logger.error(`  PASSWORD length: ${process.env.DATABASE_POSTGRES_PASSWORD?.length}`);
+  logger.error(`  PASSWORD first 3 chars: ${process.env.DATABASE_POSTGRES_PASSWORD?.substring(0, 3)}***`);
+  logger.error(`  HOST: ${process.env.DATABASE_POSTGRES_HOST}`);
 
   const { error, value } = envValidationSchema.validate(process.env, {
     abortEarly: false,
@@ -85,12 +89,13 @@ export function getDatabaseConfig(): DatabaseConfigs {
     };
   }
 
-  console.error('🔍 RETURNING CONFIG:');
-  console.error('  postgres.username:', DATABASE_POSTGRES_USER);
-  console.error('  postgres.password length:', DATABASE_POSTGRES_PASSWORD?.length);
-  console.error('  postgres.host:', DATABASE_POSTGRES_HOST);
-  console.error('  postgres.port:', DATABASE_POSTGRES_PORT);
-  console.error('  postgres.database:', DATABASE_POSTGRES_NAME);
+  logger.error('🔍 RETURNING DB CONFIG:');
+  logger.error(`  username: ${DATABASE_POSTGRES_USER}`);
+  logger.error(`  password length: ${DATABASE_POSTGRES_PASSWORD?.length}`);
+  logger.error(`  password preview: ${DATABASE_POSTGRES_PASSWORD?.substring(0, 1)}***`);
+  logger.error(`  host: ${DATABASE_POSTGRES_HOST}`);
+  logger.error(`  port: ${DATABASE_POSTGRES_PORT}`);
+  logger.error(`  database: ${DATABASE_POSTGRES_NAME}`);
 
   return {
     postgres: {
