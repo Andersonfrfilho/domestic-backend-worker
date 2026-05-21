@@ -7,6 +7,9 @@ import {
 } from '@willsoto/nestjs-prometheus';
 
 import { HttpMetricsInterceptor } from './http-metrics.interceptor';
+import { OpenTelemetryRequestIdInterceptor } from '@modules/shared/interceptors/opentelemetry-request-id.interceptor';
+import { TraceStackInterceptor } from '@modules/shared/interceptors/trace-stack.interceptor';
+import { TraceStackService } from '@modules/shared/services/trace-stack.service';
 import { QueueMetricsService } from './queue-metrics.service';
 
 @Module({
@@ -39,11 +42,21 @@ import { QueueMetricsService } from './queue-metrics.service';
       labelNames: ['queue', 'status', 'service'],
       buckets: [0.01, 0.05, 0.1, 0.5, 1, 2.5, 5, 10, 30],
     }),
+    TraceStackService,
     HttpMetricsInterceptor,
+    OpenTelemetryRequestIdInterceptor,
     QueueMetricsService,
     {
       provide: APP_INTERCEPTOR,
+      useClass: TraceStackInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
       useExisting: HttpMetricsInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: OpenTelemetryRequestIdInterceptor,
     },
   ],
   exports: [QueueMetricsService],
