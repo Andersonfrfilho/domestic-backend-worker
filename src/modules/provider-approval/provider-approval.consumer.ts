@@ -3,6 +3,7 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 import type { ProviderApprovalEvent } from './dtos/provider-approval.event.dto';
 import { ProviderApprovalHandler } from './provider-approval.handler';
@@ -14,6 +15,7 @@ export class ProviderApprovalConsumer {
   constructor(
     private readonly handler: ProviderApprovalHandler,
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
+    private readonly metrics: QueueMetricsService,
   ) {}
 
   @RabbitSubscribe({
@@ -22,6 +24,7 @@ export class ProviderApprovalConsumer {
     queue: 'worker.provider.approval',
   })
   async onProviderApproved(payload: ProviderApprovalEvent): Promise<void> {
+    const startTime = Date.now();
     this.logger.info({
       message: '[provider.approved] Received',
       context: this.logContext,
@@ -34,12 +37,14 @@ export class ProviderApprovalConsumer {
         context: this.logContext,
         params: { provider_id: payload.provider_id },
       });
+      this.metrics.record('worker.provider.approval', 'success', Date.now() - startTime);
     } catch (error) {
       this.logger.error({
         message: '[provider.approved] Failed — will NACK',
         context: this.logContext,
         params: { provider_id: payload.provider_id, error: error?.message },
       });
+      this.metrics.record('worker.provider.approval', 'failed', Date.now() - startTime);
       throw error;
     }
   }

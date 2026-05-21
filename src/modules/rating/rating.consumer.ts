@@ -3,6 +3,7 @@ import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 import type { ReviewCreatedEvent } from './dtos/review-created.event.dto';
 import { RatingHandler } from './rating.handler';
@@ -14,6 +15,7 @@ export class RatingConsumer {
   constructor(
     private readonly handler: RatingHandler,
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
+    private readonly metrics: QueueMetricsService,
   ) {}
 
   @RabbitSubscribe({
@@ -22,6 +24,7 @@ export class RatingConsumer {
     queue: 'worker.rating',
   })
   async onReviewCreated(payload: ReviewCreatedEvent): Promise<void> {
+    const startTime = Date.now();
     this.logger.info({
       message: '[review.created] Received',
       context: this.logContext,
@@ -34,12 +37,14 @@ export class RatingConsumer {
         context: this.logContext,
         params: { provider_id: payload.provider_id },
       });
+      this.metrics.record('worker.rating', 'success', Date.now() - startTime);
     } catch (error) {
       this.logger.error({
         message: '[review.created] Failed — will NACK',
         context: this.logContext,
         params: { provider_id: payload.provider_id, error: error?.message },
       });
+      this.metrics.record('worker.rating', 'failed', Date.now() - startTime);
       throw error;
     }
   }
