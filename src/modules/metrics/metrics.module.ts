@@ -9,6 +9,7 @@ import {
 import { HttpMetricsInterceptor } from './http-metrics.interceptor';
 import { OpenTelemetryRequestIdInterceptor } from '@modules/shared/interceptors/opentelemetry-request-id.interceptor';
 import { TraceStackInterceptor } from '@modules/shared/interceptors/trace-stack.interceptor';
+import { RequestIdContextInterceptor } from '@modules/shared/interceptors/request-id-context.interceptor';
 import { TraceStackService } from '@modules/shared/services/trace-stack.service';
 import { QueueMetricsService } from './queue-metrics.service';
 
@@ -45,6 +46,7 @@ import { QueueMetricsService } from './queue-metrics.service';
     TraceStackService,
     HttpMetricsInterceptor,
     OpenTelemetryRequestIdInterceptor,
+    RequestIdContextInterceptor,
     QueueMetricsService,
     {
       provide: APP_INTERCEPTOR,
@@ -53,6 +55,10 @@ import { QueueMetricsService } from './queue-metrics.service';
     {
       provide: APP_INTERCEPTOR,
       useExisting: HttpMetricsInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: RequestIdContextInterceptor,
     },
     {
       provide: APP_INTERCEPTOR,
