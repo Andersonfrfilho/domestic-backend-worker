@@ -2,9 +2,14 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { InjectMetric } from '@willsoto/nestjs-prometheus';
 import { Counter, Histogram } from 'prom-client';
 import { Observable, tap } from 'rxjs';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class HttpMetricsInterceptor implements NestInterceptor {
+  private generateId(): string {
+    return uuidv4().substring(0, 8).toUpperCase();
+  }
+
   constructor(
     @InjectMetric('http_request_duration_seconds') private readonly histogram: Histogram,
     @InjectMetric('http_requests_total') private readonly counter: Counter,
@@ -15,10 +20,12 @@ export class HttpMetricsInterceptor implements NestInterceptor {
     const res = context.switchToHttp().getResponse();
     const startTime = Date.now();
     const method: string = req.method ?? 'UNKNOWN';
-    const route: string = (req.routerPath ??
-      req.routeOptions?.url ??
-      req.url ??
-      'unknown') as string;
+    const route: string = (req.routerPath ?? req.routeOptions?.url ?? req.url ?? 'unknown') as string;
+
+    // Usar requestId existente ou gerar novo
+    const requestId = req.headers['x-request-id'] || this.generateId();
+    req.requestId = requestId;
+    res.setHeader('X-Request-ID', requestId);
 
     return next.handle().pipe(
       tap({
@@ -34,7 +41,7 @@ export class HttpMetricsInterceptor implements NestInterceptor {
       method,
       route,
       status_code: statusCode,
-      service: process.env.OTEL_SERVICE_NAME ?? 'domestic-worker',
+      service: process.env.OTEL_SERVICE_NAME ?? 'domestic-api',
     };
     this.histogram.observe(labels, duration);
     this.counter.inc(labels);
