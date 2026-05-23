@@ -2,7 +2,6 @@ import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TraceMethod } from '@adatechnology/logger';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
@@ -20,7 +19,6 @@ export class RatingHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
-  @TraceMethod()
   async handle(event: ReviewCreatedEvent): Promise<void> {
     this.logger.info({
       message: 'Recalculating average_rating',

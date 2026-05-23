@@ -1,7 +1,6 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
-import { TraceMethod } from '@adatechnology/logger';
 
 import { NotificationHandler } from '@modules/notification/notification.handler';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
@@ -31,7 +30,6 @@ export class ServiceRequestHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
-  @TraceMethod()
   async handle(event: ServiceRequestEvent): Promise<void> {
     this.logger.info({
       message: 'Processing service request event',
