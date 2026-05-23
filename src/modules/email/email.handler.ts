@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { TraceMethod } from '@adatechnology/shared';
+import { TraceMethod } from '@adatechnology/logger';
 
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';

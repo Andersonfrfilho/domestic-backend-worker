@@ -1,7 +1,7 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
-import { TraceMethod } from '@adatechnology/shared';
+import { TraceMethod } from '@adatechnology/logger';
 
 import { NotificationHandler } from '@modules/notification/notification.handler';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
