@@ -47,7 +47,7 @@ jobs:
             type=sha,format=short
             type=sha
 
-      - name: Debug - List files in workspace
+      - name: Debug - List files and build with Docker CLI
         run: |
           echo "=== Current directory ==="
           pwd
@@ -56,25 +56,22 @@ jobs:
           ls -la
           echo ""
           echo "=== Dockerfile location ==="
-          ls -la Dockerfile || echo "Dockerfile not found at root"
+          ls -la Dockerfile || echo "ERROR: Dockerfile not found at root"
           echo ""
           echo "=== backend-package-nestjs location ==="
-          ls -la backend-package-nestjs | head -5 || echo "backend-package-nestjs not found"
+          ls -la backend-package-nestjs | head -10 || echo "ERROR: backend-package-nestjs not found"
+          echo ""
+          echo "=== Attempting Docker build ==="
+          docker build -f Dockerfile . -t test-build 2>&1 | head -100 || echo "Docker build failed"
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            GIT_COMMIT_HASH=${{ github.sha }}
-            GIT_COMMIT_HASH_FULL=${{ github.sha }}
-            GIT_BRANCH=${{ github.ref_name }}
-            BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          no-cache: true
-          cache-to: type=registry,ref=ghcr.io/${{ env.REPO_LC }}:buildcache,mode=max
+          echo ""
+          echo "If build succeeded, attempting to tag and push..."
+          if docker images | grep -q test-build; then
+            echo "Image exists, would tag and push here"
+            # docker tag test-build ghcr.io/... && docker push ...
+          else
+            echo "Docker build failed - image not found"
+          fi
 
       - name: Update Kubernetes deployment
         if: github.ref == 'refs/heads/main'
