@@ -23,6 +23,7 @@ const workerModules = [
   LoggerModule.forRoot({
     level: process.env.LOG_LEVEL || 'info',
     interceptorExcludedPaths: ['/health', '/metrics'],
+    enableTraceStack: true,
   }),
   SharedModule,
   HttpModule.forRoot({}),

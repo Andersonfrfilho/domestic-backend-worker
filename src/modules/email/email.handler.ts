@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { TraceMethod } from '@adatechnology/shared';
 
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
@@ -36,6 +37,7 @@ export class EmailHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async handle(event: EmailEvent): Promise<void> {
     this.logger.info({
       message: 'Sending email',
