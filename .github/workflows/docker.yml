@@ -47,11 +47,24 @@ jobs:
             type=sha,format=short
             type=sha
 
+      - name: Debug - List files in workspace
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo ""
+          echo "=== Files in workspace ==="
+          ls -la
+          echo ""
+          echo "=== Dockerfile location ==="
+          ls -la Dockerfile || echo "Dockerfile not found at root"
+          echo ""
+          echo "=== backend-package-nestjs location ==="
+          ls -la backend-package-nestjs | head -5 || echo "backend-package-nestjs not found"
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          dockerfile: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
