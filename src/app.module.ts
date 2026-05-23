@@ -1,6 +1,7 @@
 import { HttpModule } from '@adatechnology/http-client';
 import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
 import { LoggerModule, RequestContextMiddleware } from '@adatechnology/logger';
+import { PackageContextMiddleware } from '@app/shared/middleware/package-context.middleware';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { ConfigModule } from '@config/config.module';
@@ -55,6 +56,6 @@ if (process.env.DISABLE_RABBITMQ !== 'true') {
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestContextMiddleware).forRoutes('*');
+    consumer.apply(RequestContextMiddleware, PackageContextMiddleware).forRoutes('*');
   }
 }
