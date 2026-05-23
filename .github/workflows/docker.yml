@@ -47,31 +47,32 @@ jobs:
             type=sha,format=short
             type=sha
 
-      - name: Debug - List files and build with Docker CLI
+      - name: Build and push Docker image
         run: |
-          echo "=== Current directory ==="
-          pwd
-          echo ""
-          echo "=== Files in workspace ==="
-          ls -la
-          echo ""
-          echo "=== Dockerfile location ==="
-          ls -la Dockerfile || echo "ERROR: Dockerfile not found at root"
-          echo ""
-          echo "=== backend-package-nestjs location ==="
-          ls -la backend-package-nestjs | head -10 || echo "ERROR: backend-package-nestjs not found"
-          echo ""
-          echo "=== Attempting Docker build ==="
-          docker build -f Dockerfile . -t test-build 2>&1 | head -100 || echo "Docker build failed"
+          # Build the Docker image
+          echo "Building Docker image..."
+          docker build \
+            -f Dockerfile \
+            --build-arg GIT_COMMIT_HASH=${{ github.sha }} \
+            --build-arg GIT_COMMIT_HASH_FULL=${{ github.sha }} \
+            --build-arg GIT_BRANCH=${{ github.ref_name }} \
+            --build-arg BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
+            -t temp-image:latest \
+            .
 
-          echo ""
-          echo "If build succeeded, attempting to tag and push..."
-          if docker images | grep -q test-build; then
-            echo "Image exists, would tag and push here"
-            # docker tag test-build ghcr.io/... && docker push ...
-          else
-            echo "Docker build failed - image not found"
-          fi
+          # Tag the image with all the tags from metadata
+          echo "Tagging image..."
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            docker tag temp-image:latest "$tag"
+            echo "Tagged as: $tag"
+          done
+
+          # Push all tags
+          echo "Pushing image..."
+          for tag in ${{ steps.meta.outputs.tags }}; do
+            docker push "$tag"
+            echo "Pushed: $tag"
+          done
 
       - name: Update Kubernetes deployment
         if: github.ref == 'refs/heads/main'
