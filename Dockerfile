@@ -9,13 +9,15 @@ FROM node:25-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy all package files
+COPY package.json pnpm-lock.yaml ./
 
-RUN npm ci
+# Convert pnpm-lock to npm format or use pnpm with clean install
+RUN npm install -g pnpm && \
+    rm -f pnpm-lock.yaml && \
+    npm install
 
 COPY . .
-
-RUN npx patch-package
 
 RUN npm run build
 
@@ -62,4 +64,4 @@ RUN mkdir -p logs
 
 # PRODUÇÃO: Inicia diretamente (sem rodar migrations)
 # Migrations devem ser rodadas manualmente ou via pipeline CI/CD
-CMD ["npm", "run", "start:prod"]
+CMD ["node", "dist/main"]
