@@ -1,5 +1,4 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
-import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -15,7 +14,6 @@ import type { ProviderApprovalEvent } from './dtos/provider-approval.event.dto';
 
 @Injectable()
 export class ProviderApprovalHandler {
-  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(

@@ -1,5 +1,4 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
-import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,7 +11,6 @@ import type { ReviewCreatedEvent } from './dtos/review-created.event.dto';
 
 @Injectable()
 export class RatingHandler {
-  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(

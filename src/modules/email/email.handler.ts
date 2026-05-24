@@ -28,7 +28,6 @@ const SUBJECTS: Record<string, string> = {
 
 @Injectable()
 export class EmailHandler {
-  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
   private readonly templatesDir = path.join(__dirname, 'templates');
 

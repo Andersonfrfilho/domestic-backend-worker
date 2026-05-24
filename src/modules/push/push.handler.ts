@@ -1,5 +1,4 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
-import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { FirebaseProviderInterface } from '@modules/shared/firebase/firebase.interface';
@@ -10,7 +9,6 @@ import type { PushEvent } from './dtos/push.event.dto';
 
 @Injectable()
 export class PushHandler {
-  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(

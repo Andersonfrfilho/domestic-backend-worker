@@ -1,5 +1,4 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
-import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -23,7 +22,6 @@ interface NotifyParams {
 
 @Injectable()
 export class ServiceRequestHandler {
-  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(
