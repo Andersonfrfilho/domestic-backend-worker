@@ -23,6 +23,7 @@ const workerModules = [
   ConfigModule,
   LoggerModule.forRoot({
       enableTraceStack: true,
+      colorize: true,
     level: process.env.LOG_LEVEL || 'info',
     interceptorExcludedPaths: ['/health', '/metrics'],
   }),
