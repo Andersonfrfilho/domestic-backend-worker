@@ -3,9 +3,11 @@ import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { EmailConsumer } from './email.consumer';
 import { EmailHandler } from './email.handler';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 const mockHandler = { handle: jest.fn().mockResolvedValue(undefined) };
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
+const mockMetrics = { record: jest.fn() };
 
 const payload = {
   to: 'user@test.com',
@@ -22,6 +24,7 @@ describe('EmailConsumer', () => {
         EmailConsumer,
         { provide: EmailHandler, useValue: mockHandler },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
+        { provide: QueueMetricsService, useValue: mockMetrics },
       ],
     }).compile();
 

@@ -3,12 +3,14 @@ import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { ProviderApprovalConsumer } from './provider-approval.consumer';
 import { ProviderApprovalHandler } from './provider-approval.handler';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 const mockHandler = {
   handleApproved: jest.fn().mockResolvedValue(undefined),
   handleRejected: jest.fn().mockResolvedValue(undefined),
 };
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
+const mockMetrics = { record: jest.fn() };
 
 const approvedPayload = { provider_id: 'prov-1', user_id: 'user-1', email: 'p@test.com' };
 const rejectedPayload = {
@@ -27,6 +29,7 @@ describe('ProviderApprovalConsumer', () => {
         ProviderApprovalConsumer,
         { provide: ProviderApprovalHandler, useValue: mockHandler },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
+        { provide: QueueMetricsService, useValue: mockMetrics },
       ],
     }).compile();
 

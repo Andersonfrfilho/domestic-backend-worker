@@ -3,9 +3,11 @@ import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { PushConsumer } from './push.consumer';
 import { PushHandler } from './push.handler';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 const mockHandler = { handle: jest.fn().mockResolvedValue(undefined) };
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
+const mockMetrics = { record: jest.fn() };
 
 const payload = {
   user_id: 'user-1',
@@ -24,6 +26,7 @@ describe('PushConsumer', () => {
         PushConsumer,
         { provide: PushHandler, useValue: mockHandler },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
+        { provide: QueueMetricsService, useValue: mockMetrics },
       ],
     }).compile();
 

@@ -3,9 +3,11 @@ import { LOGGER_PROVIDER } from '@adatechnology/logger';
 
 import { RatingConsumer } from './rating.consumer';
 import { RatingHandler } from './rating.handler';
+import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 
 const mockHandler = { handle: jest.fn().mockResolvedValue(undefined) };
 const mockLogger = { info: jest.fn(), warn: jest.fn(), error: jest.fn(), debug: jest.fn() };
+const mockMetrics = { record: jest.fn() };
 
 const payload = { review_id: 'rev-1', provider_id: 'prov-1', rating: 5 };
 
@@ -18,6 +20,7 @@ describe('RatingConsumer', () => {
         RatingConsumer,
         { provide: RatingHandler, useValue: mockHandler },
         { provide: LOGGER_PROVIDER, useValue: mockLogger },
+        { provide: QueueMetricsService, useValue: mockMetrics },
       ],
     }).compile();
 
