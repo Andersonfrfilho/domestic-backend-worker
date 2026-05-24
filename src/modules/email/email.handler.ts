@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import * as path from 'path';
 
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
@@ -27,6 +28,7 @@ const SUBJECTS: Record<string, string> = {
 
 @Injectable()
 export class EmailHandler {
+  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
   private readonly templatesDir = path.join(__dirname, 'templates');
 

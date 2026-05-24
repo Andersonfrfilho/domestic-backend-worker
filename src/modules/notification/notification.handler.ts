@@ -1,4 +1,5 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
@@ -11,6 +12,7 @@ import type { NotificationPersistEvent } from './dtos/notification-persist.event
 
 @Injectable()
 export class NotificationHandler {
+  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.persist`;
 
   constructor(

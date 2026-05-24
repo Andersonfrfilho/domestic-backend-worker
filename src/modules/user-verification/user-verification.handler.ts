@@ -1,4 +1,5 @@
 import {
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
   KEYCLOAK_ADMIN_CLIENT,
   type KeycloakAdminClientInterface,
 } from '@adatechnology/keycloak-admin';
@@ -11,6 +12,7 @@ import type { UserEmailVerifiedEvent } from './dtos/user-email-verified.event.dt
 
 @Injectable()
 export class UserVerificationHandler {
+  @TraceMethod()
   private readonly logContext = `${this.constructor.name}.handle`;
 
   constructor(
