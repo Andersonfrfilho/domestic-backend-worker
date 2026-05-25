@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { LOGGER_PROVIDER } from '@adatechnology/nestjs-logger';
 
 import { RatingConsumer } from './rating.consumer';
 import { RatingHandler } from './rating.handler';

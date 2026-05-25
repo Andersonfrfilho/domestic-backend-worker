@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { LOGGER_PROVIDER } from '@adatechnology/nestjs-logger';
 
 import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';

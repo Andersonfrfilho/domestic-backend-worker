@@ -1,4 +1,4 @@
-import { LOGGER_PROVIDER, runWithContext } from '@adatechnology/logger';
+import { LOGGER_PROVIDER, runWithContext } from '@adatechnology/nestjs-logger';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 import { context } from '@opentelemetry/api';
@@ -7,7 +7,7 @@ import type { ConsumeMessage } from 'amqplib';
 import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
-import { extractAmqpContext } from '@adatechnology/logger';
+import { extractAmqpContext } from '@adatechnology/nestjs-logger';
 
 import type { PushEvent } from './dtos/push.event.dto';
 import { PushHandler } from './push.handler';

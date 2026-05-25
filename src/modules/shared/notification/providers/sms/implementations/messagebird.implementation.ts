@@ -1,5 +1,5 @@
-import { HTTP_PROVIDER, type HttpProviderInterface } from '@adatechnology/http-client';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { HTTP_PROVIDER, type HttpProviderInterface } from '@adatechnology/nestjs-http-client';
+import { LOGGER_PROVIDER } from '@adatechnology/nestjs-logger';
 import { Inject, Injectable } from '@nestjs/common';
 
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';

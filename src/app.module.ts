@@ -1,6 +1,6 @@
-import { HttpModule } from '@adatechnology/http-client';
-import { KeycloakAdminModule } from '@adatechnology/keycloak-admin';
-import { LoggerModule, RequestContextMiddleware } from '@adatechnology/logger';
+import { HttpModule } from '@adatechnology/nestjs-http-client';
+import { KeycloakAdminModule } from '@adatechnology/nestjs-keycloak-admin';
+import { LoggerModule, RequestContextMiddleware } from '@adatechnology/nestjs-logger';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { ConfigModule } from '@config/config.module';

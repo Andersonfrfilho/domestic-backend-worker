@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { LOGGER_PROVIDER } from '@adatechnology/nestjs-logger';
 
 import { ProviderApprovalConsumer } from './provider-approval.consumer';
 import { ProviderApprovalHandler } from './provider-approval.handler';

@@ -1,8 +1,8 @@
 import {
   KEYCLOAK_ADMIN_CLIENT,
   type KeycloakAdminClientInterface,
-} from '@adatechnology/keycloak-admin';
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+} from '@adatechnology/nestjs-keycloak-admin';
+import { LOGGER_PROVIDER } from '@adatechnology/nestjs-logger';
 import { Inject, Injectable } from '@nestjs/common';
 
 import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
