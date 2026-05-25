@@ -27,8 +27,8 @@ const workerModules = [
   LoggerModule.forRoot({
     enableTraceStack: true,
     requestIdFormat: REQUEST_ID_FORMAT.SHORT_HASH,
-    colorize: true,
-    isProduction: false,
+    colorize: process.stdout.isTTY,
+    isProduction: !process.stdout.isTTY,
     appName: 'backend-worker',
     appVersion: '0.0.1',
     level: process.env.LOG_LEVEL || 'info',
