@@ -1,6 +1,10 @@
 import { HttpModule } from '@adatechnology/nestjs-http-client';
 import { KeycloakAdminModule } from '@adatechnology/nestjs-keycloak-admin';
-import { LoggerModule, RequestContextMiddleware } from '@adatechnology/nestjs-logger';
+import {
+  LoggerModule,
+  REQUEST_ID_FORMAT,
+  RequestContextMiddleware,
+} from '@adatechnology/nestjs-logger';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 
 import { ConfigModule } from '@config/config.module';
@@ -22,6 +26,7 @@ const workerModules = [
   ConfigModule,
   LoggerModule.forRoot({
     enableTraceStack: true,
+    requestIdFormat: REQUEST_ID_FORMAT.SHORT_HASH,
     colorize: true,
     isProduction: false,
     appName: 'backend-worker',

@@ -46,7 +46,7 @@
   "dependencies": {
     "@adatechnology/nestjs-http-client": "latest",
     "@adatechnology/nestjs-keycloak-admin": "latest",
-    "@adatechnology/nestjs-logger": "0.1.1",
+    "@adatechnology/nestjs-logger": "0.2.0",
     "@golevelup/nestjs-rabbitmq": "^7.1.1",
     "@nestjs/common": "^11.1.11",
     "@nestjs/config": "^4.0.2",
