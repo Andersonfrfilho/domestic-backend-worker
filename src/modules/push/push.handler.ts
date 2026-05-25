@@ -1,6 +1,7 @@
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import type { FirebaseProviderInterface } from '@modules/shared/firebase/firebase.interface';
 import { FIREBASE_PROVIDER } from '@modules/shared/firebase/firebase.token';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
@@ -17,6 +18,7 @@ export class PushHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async handle(event: PushEvent): Promise<void> {
     this.logger.info({
       message: 'Sending push notification',

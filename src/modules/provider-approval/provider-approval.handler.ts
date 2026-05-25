@@ -4,6 +4,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { NotificationHandler } from '@modules/notification/notification.handler';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
@@ -26,6 +27,7 @@ export class ProviderApprovalHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async handleApproved(event: ProviderApprovalEvent): Promise<void> {
     this.logger.info({
       message: 'Processing provider approval event',
@@ -51,6 +53,7 @@ export class ProviderApprovalHandler {
     });
   }
 
+  @TraceMethod()
   async handleRejected(event: ProviderApprovalEvent): Promise<void> {
     this.logger.info({
       message: 'Processing provider rejection event',

@@ -1,11 +1,11 @@
 import * as fs from 'fs';
-import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import * as path from 'path';
 
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 import * as Handlebars from 'handlebars';
 
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import type { EmailProviderInterface } from '@modules/shared/email/email.interface';
 import { EMAIL_PROVIDER } from '@modules/shared/email/email.token';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
@@ -37,6 +37,7 @@ export class EmailHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async handle(event: EmailEvent): Promise<void> {
     this.logger.info({
       message: 'Sending email',

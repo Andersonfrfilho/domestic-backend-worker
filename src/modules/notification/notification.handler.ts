@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 import { CONNECTIONS_NAMES } from '@modules/shared/providers/database/database.constant';
 import { Notification } from '@modules/shared/providers/database/entities/notification.entity';
@@ -19,6 +20,7 @@ export class NotificationHandler {
     @Inject(LOGGER_PROVIDER) private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async persist(event: NotificationPersistEvent): Promise<void> {
     this.logger.info({
       message: 'Persisting in-app notification',

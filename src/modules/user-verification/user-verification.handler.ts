@@ -5,6 +5,7 @@ import {
 import { LOGGER_PROVIDER } from '@adatechnology/logger';
 import { Inject, Injectable } from '@nestjs/common';
 
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
 import type { UserEmailVerifiedEvent } from './dtos/user-email-verified.event.dto';
@@ -20,6 +21,7 @@ export class UserVerificationHandler {
     private readonly logger: LogProviderInterface,
   ) {}
 
+  @TraceMethod()
   async handleEmailVerified(event: UserEmailVerifiedEvent): Promise<void> {
     this.logger.info({
       message: 'Processing user email verified event',

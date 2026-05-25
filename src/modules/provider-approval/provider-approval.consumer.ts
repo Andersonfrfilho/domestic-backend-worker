@@ -1,9 +1,10 @@
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { LOGGER_PROVIDER, runWithContext } from '@adatechnology/logger';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 
-import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
+import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
 import type { ProviderApprovalEvent } from './dtos/provider-approval.event.dto';
 import { ProviderApprovalHandler } from './provider-approval.handler';
@@ -23,30 +24,34 @@ export class ProviderApprovalConsumer {
     routingKey: 'provider.approved',
     queue: 'worker.provider.approval',
   })
+  @TraceMethod()
   async onProviderApproved(payload: ProviderApprovalEvent): Promise<void> {
-    const startTime = Date.now();
-    this.logger.info({
-      message: '[provider.approved] Received',
-      context: this.logContext,
-      params: { provider_id: payload.provider_id },
-    });
-    try {
-      await this.handler.handleApproved(payload);
+    const requestId = `msg:provider-approved:${Date.now().toString(36)}`;
+    return runWithContext({ requestId }, async () => {
+      const startTime = Date.now();
       this.logger.info({
-        message: '[provider.approved] Done',
+        message: '[provider.approved] Received',
         context: this.logContext,
         params: { provider_id: payload.provider_id },
       });
-      this.metrics.record('worker.provider.approval', 'success', Date.now() - startTime);
-    } catch (error) {
-      this.logger.error({
-        message: '[provider.approved] Failed — will NACK',
-        context: this.logContext,
-        params: { provider_id: payload.provider_id, error: error?.message },
-      });
-      this.metrics.record('worker.provider.approval', 'failed', Date.now() - startTime);
-      throw error;
-    }
+      try {
+        await this.handler.handleApproved(payload);
+        this.logger.info({
+          message: '[provider.approved] Done',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id },
+        });
+        this.metrics.record('worker.provider.approval', 'success', Date.now() - startTime);
+      } catch (error) {
+        this.logger.error({
+          message: '[provider.approved] Failed — will NACK',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id, error: error?.message },
+        });
+        this.metrics.record('worker.provider.approval', 'failed', Date.now() - startTime);
+        throw error;
+      }
+    });
   }
 
   @RabbitSubscribe({
@@ -54,26 +59,30 @@ export class ProviderApprovalConsumer {
     routingKey: 'provider.rejected',
     queue: 'worker.provider.approval',
   })
+  @TraceMethod()
   async onProviderRejected(payload: ProviderApprovalEvent): Promise<void> {
-    this.logger.info({
-      message: '[provider.rejected] Received',
-      context: this.logContext,
-      params: { provider_id: payload.provider_id },
-    });
-    try {
-      await this.handler.handleRejected(payload);
+    const requestId = `msg:provider-rejected:${Date.now().toString(36)}`;
+    return runWithContext({ requestId }, async () => {
       this.logger.info({
-        message: '[provider.rejected] Done',
+        message: '[provider.rejected] Received',
         context: this.logContext,
         params: { provider_id: payload.provider_id },
       });
-    } catch (error) {
-      this.logger.error({
-        message: '[provider.rejected] Failed — will NACK',
-        context: this.logContext,
-        params: { provider_id: payload.provider_id, error: error?.message },
-      });
-      throw error;
-    }
+      try {
+        await this.handler.handleRejected(payload);
+        this.logger.info({
+          message: '[provider.rejected] Done',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id },
+        });
+      } catch (error) {
+        this.logger.error({
+          message: '[provider.rejected] Failed — will NACK',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id, error: error?.message },
+        });
+        throw error;
+      }
+    });
   }
 }

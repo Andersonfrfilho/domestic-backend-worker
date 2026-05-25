@@ -1,9 +1,10 @@
-import { LOGGER_PROVIDER } from '@adatechnology/logger';
+import { LOGGER_PROVIDER, runWithContext } from '@adatechnology/logger';
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Inject, Injectable } from '@nestjs/common';
 
-import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
+import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
+import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
 
 import type { ReviewCreatedEvent } from './dtos/review-created.event.dto';
 import { RatingHandler } from './rating.handler';
@@ -23,29 +24,33 @@ export class RatingConsumer {
     routingKey: 'review.created',
     queue: 'worker.rating',
   })
+  @TraceMethod()
   async onReviewCreated(payload: ReviewCreatedEvent): Promise<void> {
-    const startTime = Date.now();
-    this.logger.info({
-      message: '[review.created] Received',
-      context: this.logContext,
-      params: { provider_id: payload.provider_id },
-    });
-    try {
-      await this.handler.handle(payload);
+    const requestId = `msg:rating:${Date.now().toString(36)}`;
+    return runWithContext({ requestId }, async () => {
+      const startTime = Date.now();
       this.logger.info({
-        message: '[review.created] Done',
+        message: '[review.created] Received',
         context: this.logContext,
         params: { provider_id: payload.provider_id },
       });
-      this.metrics.record('worker.rating', 'success', Date.now() - startTime);
-    } catch (error) {
-      this.logger.error({
-        message: '[review.created] Failed — will NACK',
-        context: this.logContext,
-        params: { provider_id: payload.provider_id, error: error?.message },
-      });
-      this.metrics.record('worker.rating', 'failed', Date.now() - startTime);
-      throw error;
-    }
+      try {
+        await this.handler.handle(payload);
+        this.logger.info({
+          message: '[review.created] Done',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id },
+        });
+        this.metrics.record('worker.rating', 'success', Date.now() - startTime);
+      } catch (error) {
+        this.logger.error({
+          message: '[review.created] Failed — will NACK',
+          context: this.logContext,
+          params: { provider_id: payload.provider_id, error: error?.message },
+        });
+        this.metrics.record('worker.rating', 'failed', Date.now() - startTime);
+        throw error;
+      }
+    });
   }
 }
