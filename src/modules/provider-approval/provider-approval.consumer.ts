@@ -7,7 +7,7 @@ import type { ConsumeMessage } from 'amqplib';
 import { TraceMethod } from '@app/shared/decorators/trace-method.decorator';
 import { QueueMetricsService } from '@modules/metrics/queue-metrics.service';
 import type { LogProviderInterface } from '@modules/shared/interfaces/log.interface';
-import { extractAmqpContext } from '@modules/shared/rabbitmq/amqp-context.helper';
+import { extractAmqpContext } from '@adatechnology/logger';
 
 import type { ProviderApprovalEvent } from './dtos/provider-approval.event.dto';
 import { ProviderApprovalHandler } from './provider-approval.handler';
