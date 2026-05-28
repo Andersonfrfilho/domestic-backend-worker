@@ -2,6 +2,12 @@ import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import type { ConfirmChannel } from 'amqplib';
 
+import {
+  RABBITMQ_EXCHANGE,
+  RABBITMQ_DLX_EXCHANGE,
+  RABBITMQ_QUEUES,
+} from '@modules/shared/constants/rabbitmq-queues.constant';
+
 @Injectable()
 export class RabbitBindingsService implements OnModuleInit {
   constructor(private readonly amqpConnection: AmqpConnection) {}
@@ -43,35 +49,55 @@ export class RabbitBindingsService implements OnModuleInit {
   private async createBindings(channel: ConfirmChannel) {
     const bindings = [
       {
-        queue: 'worker.provider.approval',
-        exchange: 'zolve.events',
-        routingKey: 'provider.approved',
+        queue: RABBITMQ_QUEUES.PROVIDER_APPROVAL.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.PROVIDER_APPROVAL.ROUTING_KEYS.APPROVED,
       },
       {
-        queue: 'worker.provider.approval',
-        exchange: 'zolve.events',
-        routingKey: 'provider.rejected',
-      },
-      { queue: 'worker.rating', exchange: 'zolve.events', routingKey: 'review.created' },
-      {
-        queue: 'worker.service-requests',
-        exchange: 'zolve.events',
-        routingKey: 'service_request.*',
+        queue: RABBITMQ_QUEUES.PROVIDER_APPROVAL.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.PROVIDER_APPROVAL.ROUTING_KEYS.REJECTED,
       },
       {
-        queue: 'worker.notifications',
-        exchange: 'zolve.events',
-        routingKey: 'notifications.email',
+        queue: RABBITMQ_QUEUES.RATING.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.RATING.ROUTING_KEYS.REVIEW_CREATED,
       },
-      { queue: 'worker.notifications', exchange: 'zolve.events', routingKey: 'notifications.push' },
-      { queue: 'worker.dlq', exchange: 'zolve.dlx', routingKey: '' },
+      {
+        queue: RABBITMQ_QUEUES.SERVICE_REQUESTS.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.SERVICE_REQUESTS.ROUTING_KEYS.WILDCARD,
+      },
+      {
+        queue: RABBITMQ_QUEUES.NOTIFICATIONS.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.NOTIFICATIONS.ROUTING_KEYS.EMAIL,
+      },
+      {
+        queue: RABBITMQ_QUEUES.NOTIFICATIONS.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.NOTIFICATIONS.ROUTING_KEYS.SMS,
+      },
+      {
+        queue: RABBITMQ_QUEUES.NOTIFICATIONS.NAME,
+        exchange: RABBITMQ_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.NOTIFICATIONS.ROUTING_KEYS.PUSH,
+      },
+      {
+        queue: RABBITMQ_QUEUES.DLQ.NAME,
+        exchange: RABBITMQ_DLX_EXCHANGE,
+        routingKey: RABBITMQ_QUEUES.DLQ.ROUTING_KEYS.WILDCARD,
+      },
     ];
 
     // Ensure all queues exist
     const queueNames = new Set(bindings.map((b) => b.queue));
     for (const queueName of queueNames) {
       try {
-        const queueOptions = queueName === 'worker.dlq' ? { deadLetterExchange: 'zolve.dlx' } : {};
+        const queueOptions =
+          queueName === RABBITMQ_QUEUES.DLQ.NAME
+            ? { deadLetterExchange: RABBITMQ_DLX_EXCHANGE }
+            : {};
         await channel.assertQueue(queueName, queueOptions);
       } catch (error) {
         console.error(`[RabbitBindingsService] Failed to create queue "${queueName}":`, error);

@@ -19,6 +19,7 @@ import { PushModule } from './modules/push/push.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { ServiceRequestWorkerModule } from './modules/service-request-worker/service-request.module';
 import { SharedModule } from './modules/shared/shared.module';
+import { SmsModule } from './modules/sms/sms.module';
 import { UserVerificationModule } from './modules/user-verification/user-verification.module';
 
 const workerModules = [
@@ -54,6 +55,7 @@ if (process.env.DISABLE_RABBITMQ !== 'true') {
     RatingModule,
     ServiceRequestWorkerModule,
     EmailModule,
+    SmsModule,
     PushModule,
     UserVerificationModule,
   );
