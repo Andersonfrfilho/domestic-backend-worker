@@ -46,7 +46,7 @@ export class SmsHandler {
     // SMS templates are simple text, not HTML like email
     switch (templateId) {
       case 'verification_code_sms':
-        return `Seu código de verificação Domestic: ${variables.code}\nVálido por ${variables.expiresIn}.\nNunca compartilhe este código.`;
+        return `Seu código de verificação Domestic: ${variables.code}\nVálido por ${variables.expiresIn}.\nNunca compartilhe este código.\n\n@domestic.com.br #${variables.code}`;
       default:
         this.logger.warn({
           message: 'Unknown SMS template — sending generic message',
