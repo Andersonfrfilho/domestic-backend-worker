@@ -147,31 +147,66 @@
     }
 
     /* Timer/Expiration */
-    .expiration-banner {
+    .expiration-box {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FEF9E7 100%);
+      border: 2px solid #F59E0B;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 24px 0;
+      text-align: center;
+    }
+
+    .expiration-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: #92400E;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .timer-display {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 12px;
-      background: #FEF3C7;
-      border-left: 4px solid #F59E0B;
-      padding: 16px;
-      border-radius: 8px;
-      margin: 24px 0;
+      margin-bottom: 16px;
     }
 
-    .expiration-icon {
-      font-size: 20px;
-      flex-shrink: 0;
+    .timer-icon {
+      font-size: 28px;
     }
 
-    .expiration-text {
-      font-size: 14px;
-      color: #78350F;
+    .timer-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #F59E0B;
       margin: 0;
     }
 
-    .expiration-text strong {
+    .expiration-time {
+      font-size: 13px;
+      color: #78350F;
+      margin: 8px 0 0 0;
+      line-height: 1.6;
+    }
+
+    .expiration-time strong {
+      display: block;
+      font-size: 14px;
       color: #EF4444;
       font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .security-note {
+      font-size: 12px;
+      color: #92400E;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(245, 158, 11, 0.3);
+      font-weight: 500;
     }
 
     /* Security Section */
@@ -332,10 +367,17 @@
           <p class="code-hint">Este é um código único para sua sessão</p>
         </div>
 
-        <!-- Timer -->
-        <div class="expiration-banner">
-          <span class="expiration-icon">⏱️</span>
-          <p class="expiration-text">Este código expira em <strong>{{expiresIn}}</strong>. Não compartilhe com ninguém.</p>
+        <!-- Timer with Counter -->
+        <div class="expiration-box">
+          <span class="expiration-header">⏲️ Tempo Limitado</span>
+          <div class="timer-display">
+            <span class="timer-icon">🕐</span>
+            <p class="timer-text">{{expiresIn}}</p>
+          </div>
+          <p class="expiration-time">
+            Código expira em: <strong>{{expiresAt}}</strong>
+          </p>
+          <p class="security-note">🔒 Não compartilhe este código com ninguém. Domestic nunca pedirá este código.</p>
         </div>
 
         <!-- Security Info -->
