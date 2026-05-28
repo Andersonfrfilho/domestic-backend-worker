@@ -27,32 +27,31 @@ export class EmailConsumer {
     queue: 'worker.notifications',
   })
   @TraceMethod()
-  async onEmailEvent(payload: any, amqpMsg: ConsumeMessage): Promise<void> {
+  async onEmailEvent(payload: EmailEvent, amqpMsg: ConsumeMessage): Promise<void> {
     const { requestId: propagatedId, parentCtx } = extractAmqpContext(amqpMsg);
     const requestId = propagatedId ?? `msg:email:${Date.now().toString(36)}`;
     return context.with(parentCtx, () =>
       runWithContext({ requestId }, async () => {
         const startTime = Date.now();
-        const emailEvent: EmailEvent = payload.body || payload;
         this.logger.info({
           message: '[notifications.email] Received',
           context: this.logContext,
-          params: { to: emailEvent.to, template_id: emailEvent.template_id },
+          params: { to: payload.to, template_id: payload.template_id },
         });
 
         try {
-          await this.handler.handle(emailEvent);
+          await this.handler.handle(payload);
           this.logger.info({
             message: '[notifications.email] Done',
             context: this.logContext,
-            params: { to: emailEvent.to },
+            params: { to: payload.to },
           });
           this.metrics.record('worker.notifications', 'success', Date.now() - startTime);
         } catch (error) {
           this.logger.error({
             message: '[notifications.email] Failed — will NACK',
             context: this.logContext,
-            params: { to: emailEvent.to, error: error?.message },
+            params: { to: payload.to, error: error?.message },
           });
           this.metrics.record('worker.notifications', 'failed', Date.now() - startTime);
           throw error;
