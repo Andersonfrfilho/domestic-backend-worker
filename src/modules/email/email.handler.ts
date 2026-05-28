@@ -42,7 +42,11 @@ export class EmailHandler {
     this.logger.info({
       message: 'Sending email',
       context: this.logContext,
-      params: { to: event.to, template_id: event.template_id },
+      params: {
+        to: event.to,
+        template_id: event.template_id,
+        variables: JSON.stringify(event.variables),
+      },
     });
 
     const subject = SUBJECTS[event.template_id];

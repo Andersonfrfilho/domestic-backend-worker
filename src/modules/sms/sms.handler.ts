@@ -24,10 +24,13 @@ export class SmsHandler {
     this.logger.info({
       message: 'Sending SMS',
       context: this.logContext,
-      params: { to: event.to, template_id: event.template_id },
+      params: {
+        to: event.to,
+        template_id: event.template_id,
+        variables: JSON.stringify(event.variables),
+      },
     });
 
-    // Build SMS message from template
     const message = this.buildMessage(event.template_id, event.variables ?? {});
 
     await this.smsProvider.send({ to: event.to, message });
