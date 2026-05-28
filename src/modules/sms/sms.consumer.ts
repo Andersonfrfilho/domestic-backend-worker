@@ -31,31 +31,32 @@ export class SmsConsumer {
     queue: RABBITMQ_QUEUES.NOTIFICATIONS.NAME,
   })
   @TraceMethod()
-  async onSmsEvent(payload: SmsEvent, amqpMsg: ConsumeMessage): Promise<void> {
+  async onSmsEvent(payload: any, amqpMsg: ConsumeMessage): Promise<void> {
     const { requestId: propagatedId, parentCtx } = extractAmqpContext(amqpMsg);
     const requestId = propagatedId ?? `msg:sms:${Date.now().toString(36)}`;
     return context.with(parentCtx, () =>
       runWithContext({ requestId }, async () => {
         const startTime = Date.now();
+        const smsEvent: SmsEvent = payload.body || payload;
         this.logger.info({
           message: '[notifications.sms] Received',
           context: this.logContext,
-          params: { to: payload.to, template_id: payload.template_id },
+          params: { to: smsEvent.to, template_id: smsEvent.template_id },
         });
 
         try {
-          await this.handler.handle(payload);
+          await this.handler.handle(smsEvent);
           this.logger.info({
             message: '[notifications.sms] Done',
             context: this.logContext,
-            params: { to: payload.to },
+            params: { to: smsEvent.to },
           });
           this.metrics.record('worker.notifications', 'success', Date.now() - startTime);
         } catch (error) {
           this.logger.error({
             message: '[notifications.sms] Failed — will NACK',
             context: this.logContext,
-            params: { to: payload.to, error: error?.message },
+            params: { to: smsEvent.to, error: error?.message },
           });
           this.metrics.record('worker.notifications', 'failed', Date.now() - startTime);
           throw error;
