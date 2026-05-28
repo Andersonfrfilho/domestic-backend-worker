@@ -1,9 +1,150 @@
 <!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h2>Bem-vindo à ZOLVE, {{name}}!</h2>
-  <p>Sua conta foi criada com sucesso. Você já pode contratar serviços domésticos com praticidade e segurança.</p>
-  <a href="{{app_url}}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">Acessar a plataforma</a>
-  <p style="margin-top:24px;color:#666;font-size:12px;">ZOLVE — Serviços domésticos de confiança</p>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Bem-vindo à Domestic!</title>
+  <style type="text/css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .email-wrapper { background-color: #F8FAFC; padding: 16px; width: 100%; }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #1A45E8 0%, #1438CC 100%);
+      padding: 48px 32px;
+      text-align: center;
+    }
+    .header-icon { font-size: 56px; margin-bottom: 16px; }
+    .email-header h1 {
+      color: #FFFFFF;
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+    .email-header p {
+      color: #C7D4FD;
+      font-size: 15px;
+      margin: 0;
+    }
+    .email-body { padding: 48px 40px; }
+    .greeting { font-size: 18px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    .content { font-size: 15px; color: #475569; line-height: 1.8; margin-bottom: 32px; }
+    .cta-section {
+      text-align: center;
+      margin: 40px 0;
+    }
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #1A45E8 0%, #1438CC 100%);
+      color: #FFFFFF;
+      padding: 16px 48px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(26, 69, 232, 0.3);
+      transition: transform 0.2s;
+    }
+    .cta-button:hover { transform: translateY(-2px); }
+    .features {
+      background: #F1F5F9;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 32px 0;
+    }
+    .features-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 16px;
+    }
+    .feature-item {
+      font-size: 14px;
+      color: #475569;
+      margin: 12px 0;
+      display: flex;
+      gap: 12px;
+    }
+    .feature-item::before {
+      content: '✨';
+      flex-shrink: 0;
+    }
+    .divider { height: 1px; background: #E2E8F0; margin: 32px 0; }
+    .email-footer {
+      background-color: #F8FAFC;
+      border-top: 1px solid #E2E8F0;
+      padding: 32px 40px;
+      text-align: center;
+    }
+    .footer-logo { font-size: 16px; font-weight: 700; color: #0F172A; margin-bottom: 8px; }
+    .footer-text { font-size: 12px; color: #94A3B8; }
+    @media only screen and (max-width: 600px) {
+      .email-header { padding: 32px 24px; }
+      .email-body { padding: 32px 24px; }
+      .email-footer { padding: 24px 20px; }
+      .header-icon { font-size: 48px; }
+      .email-header h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <div class="header-icon">🎉</div>
+        <h1>Bem-vindo!</h1>
+        <p>Sua conta Domestic está pronta</p>
+      </div>
+
+      <div class="email-body">
+        <p class="greeting">Oi {{name}}! 👋</p>
+
+        <p class="content">
+          Parabéns por se juntar à Domestic! Sua conta foi criada com sucesso e você já pode começar a contratar serviços domésticos de confiança.
+        </p>
+
+        <p class="content">
+          Estamos aqui para tornar sua vida mais prática e segura. Vamos começar?
+        </p>
+
+        <div class="cta-section">
+          <a href="{{app_url}}" class="cta-button">Acessar Domestic</a>
+        </div>
+
+        <div class="features">
+          <div class="features-title">O que você pode fazer agora:</div>
+          <div class="feature-item">Contratar profissionais verificados e confiáveis</div>
+          <div class="feature-item">Solicitar serviços de forma segura e prática</div>
+          <div class="feature-item">Acompanhar o trabalho em tempo real</div>
+          <div class="feature-item">Avaliar profissionais e construir um histórico</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="content" style="font-size: 14px; color: #94A3B8;">
+          Se você tiver dúvidas ou precisar de ajuda, nossa equipe de suporte está disponível. Não hesite em nos contatar!
+        </p>
+      </div>
+
+      <div class="email-footer">
+        <div class="footer-logo">Domestic</div>
+        <div class="footer-text">© 2026 Domestic. Serviços domésticos de confiança.</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

@@ -10,15 +10,27 @@ export class NodemailerProvider implements EmailProviderInterface, OnModuleInit 
   private transporter: Transporter;
 
   onModuleInit() {
-    this.transporter = nodemailer.createTransport({
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPassword = process.env.SMTP_PASSWORD;
+
+    // Only use auth if credentials are provided (not for local testing with MailPit)
+    const config: any = {
       host: process.env.SMTP_HOST ?? 'smtp.sendgrid.net',
       port: Number(process.env.SMTP_PORT ?? 587),
       secure: false,
-      auth: {
-        user: process.env.SMTP_USER ?? 'apikey',
-        pass: process.env.SMTP_PASSWORD ?? '',
-      },
-    });
+    };
+
+    if (smtpUser || smtpPassword) {
+      config.auth = {
+        user: smtpUser ?? 'apikey',
+        pass: smtpPassword ?? '',
+      };
+    }
+
+    this.transporter = nodemailer.createTransport(config);
+    this.logger.log(
+      `SMTP configured: host=${config.host}, port=${config.port}, auth=${!!config.auth}`,
+    );
   }
 
   async send(params: SendEmailParams): Promise<void> {
