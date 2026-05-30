@@ -15,6 +15,7 @@ import { EmailModule } from './modules/email/email.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ProviderApprovalModule } from './modules/provider-approval/provider-approval.module';
+import { ProviderRegisteredModule } from './modules/provider-registered/provider-registered.module';
 import { PushModule } from './modules/push/push.module';
 import { RatingModule } from './modules/rating/rating.module';
 import { ServiceRequestWorkerModule } from './modules/service-request-worker/service-request.module';
@@ -52,6 +53,7 @@ if (process.env.DISABLE_RABBITMQ !== 'true') {
   workerModules.push(
     NotificationModule,
     ProviderApprovalModule,
+    ProviderRegisteredModule,
     RatingModule,
     ServiceRequestWorkerModule,
     EmailModule,
