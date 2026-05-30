@@ -1,0 +1,7 @@
+# Worker em modo dev — roda o processo localmente (npm run start:dev).
+# Toda a infra (postgres, mongo, rabbitmq, mailpit, keycloak) vem do domestic-backend-api.
+# Uso: make dev   (após make dev-infra no domestic-backend-api)
+networks:
+  default:
+    name: domestic_network
+    external: true
