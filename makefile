@@ -105,8 +105,8 @@ infra-ps: ## Mostra status dos containers
 
 # ─── Desenvolvimento ──────────────────────────────────────────────────────
 
-dev: $(ENV_FILE) ## Inicia o worker em modo watch (requer infra no ar)
-	npm run start:dev
+dev: $(ENV_FILE) ## Inicia o worker em modo watch com logs (requer make dev-infra no domestic-backend-api)
+	./scripts/dev-log.sh worker "npm run start:dev"
 
 # ─── Migrations ───────────────────────────────────────────────────────────
 
