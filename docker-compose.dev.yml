@@ -1,6 +1,38 @@
-# Worker em modo dev — roda o processo localmente (npm run start:dev).
-# Toda a infra (postgres, mongo, rabbitmq, mailpit, keycloak) vem do domestic-backend-api.
-# Uso: make dev   (após make dev-infra no domestic-backend-api)
+# Worker em container Docker — hot-reload via volume mount.
+# Requer infra no ar: make dev-infra (no domestic-backend-api)
+# Uso: make dev-all
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: domestic_worker
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      DATABASE_POSTGRES_HOST: domestic_database_postgres
+      DATABASE_POSTGRES_PORT: 5432
+      DATABASE_POSTGRES_NAME: backend_database_postgres
+      DATABASE_POSTGRES_USER: domestic_api
+      DATABASE_POSTGRES_PASSWORD: domestic123
+      MONGO_URI: mongodb://domestic_database_mongo:27017/backend_database_mongo
+      RABBITMQ_URL: amqp://${QUEUE_RABBITMQ_USER:-domestic_api}:${QUEUE_RABBITMQ_PASS:-backendapi123}@domestic_queue_rabbitmq:5672
+      RABBITMQ_EXCHANGE: ${RABBITMQ_EXCHANGE:-zolve.events}
+      SMTP_HOST: domestic_mailpit
+      SMTP_PORT: 1025
+    volumes:
+      - ./src:/app/src
+      - ./dist:/app/dist
+      - worker_logs:/app/logs
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 384m
+
+volumes:
+  worker_logs:
+
 networks:
   default:
     name: domestic_network
