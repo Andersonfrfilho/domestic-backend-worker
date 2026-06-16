@@ -1,14 +1,145 @@
 <!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h2>Sua solicitação foi recusada</h2>
-  <p>Olá, {{contractor_name}}. Infelizmente o prestador não pôde atender sua solicitação no momento.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-    <tr><td style="padding:8px;color:#666;">Serviço:</td><td style="padding:8px;font-weight:bold;">{{service_name}}</td></tr>
-    <tr><td style="padding:8px;color:#666;">Prestador:</td><td style="padding:8px;">{{provider_name}}</td></tr>
-  </table>
-  <p>Você pode buscar outro prestador disponível na plataforma.</p>
-  <a href="{{app_url}}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">Buscar prestadores</a>
-  <p style="margin-top:24px;color:#666;font-size:12px;">ZOLVE — Serviços domésticos de confiança</p>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Solicitação Não Disponível — Domestic</title>
+  <style type="text/css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .email-wrapper { background-color: #F8FAFC; padding: 16px; width: 100%; }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #475569 0%, #334155 100%);
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .header-icon { font-size: 48px; margin-bottom: 12px; }
+    .email-header h1 { color: #FFFFFF; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+    .email-header p { color: #CBD5E1; font-size: 14px; margin: 0; }
+    .email-body { padding: 40px 32px; }
+    .greeting { font-size: 18px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    .subtitle { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 28px; }
+    .request-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .request-header { font-size: 13px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .request-title { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 16px; }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 13px; color: #64748B; font-weight: 500; }
+    .detail-value { font-size: 14px; color: #0F172A; font-weight: 600; }
+    .info-box {
+      background: #FFF7ED;
+      border: 1px solid #FED7AA;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 24px 0;
+    }
+    .info-title { font-size: 14px; font-weight: 700; color: #9A3412; margin-bottom: 8px; }
+    .info-text { font-size: 13px; color: #7C3A1D; line-height: 1.6; }
+    .action-section { text-align: center; margin: 32px 0; }
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #1A45E8 0%, #1438CC 100%);
+      color: #FFFFFF;
+      padding: 14px 44px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(26, 69, 232, 0.3);
+    }
+    .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
+    .email-footer {
+      background-color: #F8FAFC;
+      border-top: 1px solid #E2E8F0;
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .footer-logo { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .footer-text { font-size: 12px; color: #94A3B8; }
+    @media only screen and (max-width: 600px) {
+      .email-header { padding: 32px 24px; }
+      .email-body { padding: 24px 20px; }
+      .email-footer { padding: 20px 16px; }
+      .detail-row { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <div class="header-icon">😔</div>
+        <h1>Prestador Indisponível</h1>
+        <p>Mas não se preocupe — há outros profissionais disponíveis</p>
+      </div>
+
+      <div class="email-body">
+        <p class="greeting">Olá, {{contractor_name}}.</p>
+        <p class="subtitle">
+          Infelizmente, o prestador não pôde aceitar sua solicitação no momento. Isso pode acontecer por indisponibilidade de agenda ou outros compromissos. A boa notícia é que há outros profissionais qualificados na plataforma!
+        </p>
+
+        <div class="request-card">
+          <div class="request-header">📋 Solicitação não atendida</div>
+          <div class="request-title">{{service_name}}</div>
+          <div class="detail-row">
+            <span class="detail-label">Prestador</span>
+            <span class="detail-value">{{provider_name}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" style="color: #DC2626;">Não disponível</span>
+          </div>
+        </div>
+
+        <div class="info-box">
+          <div class="info-title">💡 O que fazer agora?</div>
+          <div class="info-text">
+            Acesse o app e busque outros prestadores para o mesmo serviço. Temos uma ampla rede de profissionais avaliados e verificados prontos para atendê-lo.
+          </div>
+        </div>
+
+        <div class="action-section">
+          <a href="{{app_url}}" class="cta-button">Buscar Outros Prestadores</a>
+        </div>
+
+        <div class="divider"></div>
+        <p style="font-size: 13px; color: #94A3B8; text-align: center;">
+          Dica: filtre por avaliação e disponibilidade para encontrar o profissional ideal rapidamente.
+        </p>
+      </div>
+
+      <div class="email-footer">
+        <div class="footer-logo">Domestic</div>
+        <div class="footer-text">© 2026 Domestic. Conectando profissionais e contratantes com confiança.</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

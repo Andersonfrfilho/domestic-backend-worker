@@ -1,15 +1,143 @@
 <!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h2>Serviço concluído — avalie! ⭐</h2>
-  <p>Olá, {{recipient_name}}! O serviço foi marcado como concluído.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-    <tr><td style="padding:8px;color:#666;">Serviço:</td><td style="padding:8px;font-weight:bold;">{{service_name}}</td></tr>
-  </table>
-  {{#if review_url}}
-  <p>Deixe sua avaliação e ajude outros usuários a conhecer a qualidade do serviço.</p>
-  <a href="{{review_url}}" style="background:#F59E0B;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">Avaliar serviço</a>
-  {{/if}}
-  <p style="margin-top:24px;color:#666;font-size:12px;">ZOLVE — Serviços domésticos de confiança</p>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Serviço Concluído — Domestic</title>
+  <style type="text/css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .email-wrapper { background-color: #F8FAFC; padding: 16px; width: 100%; }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%);
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .header-icon { font-size: 48px; margin-bottom: 12px; }
+    .email-header h1 { color: #FFFFFF; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+    .email-header p { color: #DDD6FE; font-size: 14px; margin: 0; }
+    .email-body { padding: 40px 32px; }
+    .greeting { font-size: 18px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    .subtitle { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 28px; }
+    .request-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .request-header { font-size: 13px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .request-title { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 16px; }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 13px; color: #64748B; font-weight: 500; }
+    .detail-value { font-size: 14px; color: #0F172A; font-weight: 600; }
+    .stars-section {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      border-radius: 12px;
+      padding: 28px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .stars { font-size: 32px; letter-spacing: 4px; margin-bottom: 12px; }
+    .stars-title { font-size: 18px; font-weight: 700; color: #78350F; margin-bottom: 8px; }
+    .stars-subtitle { font-size: 13px; color: #92400E; }
+    .action-section { text-align: center; margin: 32px 0; }
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      padding: 14px 44px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+    .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
+    .email-footer {
+      background-color: #F8FAFC;
+      border-top: 1px solid #E2E8F0;
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .footer-logo { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .footer-text { font-size: 12px; color: #94A3B8; }
+    @media only screen and (max-width: 600px) {
+      .email-header { padding: 32px 24px; }
+      .email-body { padding: 24px 20px; }
+      .email-footer { padding: 20px 16px; }
+      .detail-row { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <div class="header-icon">🎊</div>
+        <h1>Serviço Concluído!</h1>
+        <p>Obrigado por usar a Domestic</p>
+      </div>
+
+      <div class="email-body">
+        <p class="greeting">Olá, {{recipient_name}}! 👏</p>
+        <p class="subtitle">
+          O serviço foi marcado como concluído com sucesso. Esperamos que tudo tenha ocorrido conforme o esperado!
+        </p>
+
+        <div class="request-card">
+          <div class="request-header">✅ Resumo do Serviço</div>
+          <div class="request-title">{{service_name}}</div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" style="color: #7C3AED;">Concluído</span>
+          </div>
+        </div>
+
+        {{#if review_url}}
+        <div class="stars-section">
+          <div class="stars">⭐⭐⭐⭐⭐</div>
+          <div class="stars-title">Como foi o serviço?</div>
+          <div class="stars-subtitle">Sua avaliação ajuda outros usuários a escolherem os melhores profissionais</div>
+        </div>
+
+        <div class="action-section">
+          <a href="{{review_url}}" class="cta-button">Avaliar o Serviço ⭐</a>
+        </div>
+        {{/if}}
+
+        <div class="divider"></div>
+        <p style="font-size: 13px; color: #94A3B8; text-align: center;">
+          Obrigado por fazer parte da Domestic. Até a próxima! 🙌
+        </p>
+      </div>
+
+      <div class="email-footer">
+        <div class="footer-logo">Domestic</div>
+        <div class="footer-text">© 2026 Domestic. Conectando profissionais e contratantes com confiança.</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

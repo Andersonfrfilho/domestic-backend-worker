@@ -105,6 +105,19 @@ infra-ps: ## Mostra status dos containers
 
 # ─── Desenvolvimento ──────────────────────────────────────────────────────
 
+dev-app-up: $(ENV_FILE) ## Sobe o Worker em Docker com hot-reload (requer make dev-infra no domestic-backend-api)
+	@echo "🚀 Subindo Worker em Docker..."
+	docker-compose -p domestic -f docker-compose.dev.yml up -d --build
+	@echo "✅ Worker no ar"
+
+dev-app-down: ## Para o container do Worker
+	docker-compose -p domestic -f docker-compose.dev.yml down
+
+dev-app-logs: ## Tail dos logs do Worker
+	docker logs -f domestic_worker
+
+dev-all: dev-app-up ## Sobe Worker em Docker
+
 dev: $(ENV_FILE) ## Inicia o worker em modo watch com logs (requer make dev-infra no domestic-backend-api)
 	./scripts/dev-log.sh worker "npm run start:dev"
 

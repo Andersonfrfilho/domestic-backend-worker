@@ -1,13 +1,157 @@
 <!DOCTYPE html>
-<html>
-<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px;">
-  <h2>Você tem uma solicitação pendente ⏳</h2>
-  <p>Olá, {{provider_name}}! Uma solicitação de serviço está aguardando sua resposta.</p>
-  <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-    <tr><td style="padding:8px;color:#666;">Serviço:</td><td style="padding:8px;font-weight:bold;">{{service_name}}</td></tr>
-    <tr><td style="padding:8px;color:#666;">Contratante:</td><td style="padding:8px;">{{contractor_name}}</td></tr>
-  </table>
-  <a href="{{request_url}}" style="background:#4F46E5;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;">Responder agora</a>
-  <p style="margin-top:24px;color:#666;font-size:12px;">ZOLVE — Serviços domésticos de confiança</p>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Solicitação Aguardando Resposta — Domestic</title>
+  <style type="text/css">
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .email-wrapper { background-color: #F8FAFC; padding: 16px; width: 100%; }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+    .email-header {
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      padding: 40px 32px;
+      text-align: center;
+    }
+    .header-icon { font-size: 48px; margin-bottom: 12px; }
+    .email-header h1 { color: #FFFFFF; font-size: 28px; font-weight: 700; margin: 0 0 8px 0; }
+    .email-header p { color: #FEF3C7; font-size: 14px; margin: 0; }
+    .email-body { padding: 40px 32px; }
+    .greeting { font-size: 18px; font-weight: 600; color: #0F172A; margin-bottom: 16px; }
+    .subtitle { font-size: 15px; color: #475569; line-height: 1.7; margin-bottom: 28px; }
+    .urgency-banner {
+      background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+      border: 2px solid #FCD34D;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    .urgency-text { font-size: 15px; font-weight: 700; color: #92400E; margin-bottom: 4px; }
+    .urgency-sub { font-size: 13px; color: #78350F; }
+    .request-card {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      padding: 24px;
+      margin: 24px 0;
+    }
+    .request-header { font-size: 13px; font-weight: 700; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .request-title { font-size: 20px; font-weight: 700; color: #0F172A; margin-bottom: 16px; }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { font-size: 13px; color: #64748B; font-weight: 500; }
+    .detail-value { font-size: 14px; color: #0F172A; font-weight: 600; }
+    .action-section { text-align: center; margin: 32px 0; }
+    .cta-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+      color: #FFFFFF;
+      padding: 14px 44px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+    }
+    .tip-box {
+      background: #F0F9FF;
+      border-left: 4px solid #0EA5E9;
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      margin: 24px 0;
+    }
+    .tip-text { font-size: 13px; color: #0C4A6E; line-height: 1.6; }
+    .divider { height: 1px; background: #E2E8F0; margin: 24px 0; }
+    .email-footer {
+      background-color: #F8FAFC;
+      border-top: 1px solid #E2E8F0;
+      padding: 28px 32px;
+      text-align: center;
+    }
+    .footer-logo { font-size: 15px; font-weight: 700; color: #0F172A; margin-bottom: 6px; }
+    .footer-text { font-size: 12px; color: #94A3B8; }
+    @media only screen and (max-width: 600px) {
+      .email-header { padding: 32px 24px; }
+      .email-body { padding: 24px 20px; }
+      .email-footer { padding: 20px 16px; }
+      .detail-row { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="email-wrapper">
+    <div class="email-container">
+      <div class="email-header">
+        <div class="header-icon">⏳</div>
+        <h1>Resposta Pendente</h1>
+        <p>Uma solicitação está aguardando sua decisão</p>
+      </div>
+
+      <div class="email-body">
+        <p class="greeting">Olá, {{provider_name}}! 👋</p>
+        <p class="subtitle">
+          Você tem uma solicitação de serviço que ainda não recebeu resposta. Responder rapidamente aumenta suas chances de ser escolhido e melhora sua reputação na plataforma.
+        </p>
+
+        <div class="urgency-banner">
+          <div class="urgency-text">⏰ Aguardando sua resposta</div>
+          <div class="urgency-sub">Contratantes tendem a escolher prestadores que respondem em até 2 horas</div>
+        </div>
+
+        <div class="request-card">
+          <div class="request-header">📋 Solicitação Pendente</div>
+          <div class="request-title">{{service_name}}</div>
+          <div class="detail-row">
+            <span class="detail-label">Contratante</span>
+            <span class="detail-value">{{contractor_name}}</span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Status</span>
+            <span class="detail-value" style="color: #D97706;">Aguardando resposta</span>
+          </div>
+        </div>
+
+        <div class="action-section">
+          <a href="{{request_url}}" class="cta-button">Responder Agora</a>
+        </div>
+
+        <div class="tip-box">
+          <div class="tip-text">
+            💡 <strong>Dica:</strong> Aceitar solicitações rapidamente aumenta sua visibilidade na plataforma. Profissionais com tempo de resposta abaixo de 1 hora recebem até 3x mais solicitações.
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <p style="font-size: 13px; color: #94A3B8; text-align: center;">
+          Se você não puder atender, recuse educadamente para liberar o contratante buscar outros profissionais.
+        </p>
+      </div>
+
+      <div class="email-footer">
+        <div class="footer-logo">Domestic</div>
+        <div class="footer-text">© 2026 Domestic. Conectando profissionais e contratantes com confiança.</div>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
